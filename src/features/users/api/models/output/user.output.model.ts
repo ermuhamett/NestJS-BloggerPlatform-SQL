@@ -1,4 +1,5 @@
 import { UserDocument } from '../../../domain/user.entity';
+import { EmailConfirmation, User } from '../../../domain/user.sql.entity';
 
 export class UserOutputDto {
   constructor(
@@ -26,12 +27,28 @@ export class UserOutputDto {
 };*/
 
 export class UserMapper {
-  public static toView(user: UserDocument): UserOutputDto {
+  public static toView(user: User): UserOutputDto {
     return {
-      id: user.id,
+      id: user.userId,
       login: user.login,
       email: user.email,
       createdAt: user.createdAt,
     };
+  }
+  public static toDomain(userRow: any): User {
+    const emailConfirmation = new EmailConfirmation();
+    emailConfirmation.initEmailConfirmationData(userRow);
+    const user = new User(
+      {
+        login: userRow.login,
+        email: userRow.email,
+      },
+      userRow.password_hash,
+    );
+    user.createdAt = userRow.created_at;
+    user.emailConfirmation = emailConfirmation;
+    user.userId = userRow.id; // Сохранение идентификатора пользователя в объекте User
+
+    return user;
   }
 }

@@ -1,15 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { EmailConfirmation, User } from '../domain/user.sql.entity';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
+import { UserMapper } from '../api/models/output/user.output.model';
 
 @Injectable()
 export class UserRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
+  /*private mapToUser(userRow: any): User {
+    const emailConfirmation = new EmailConfirmation();
+    emailConfirmation.initEmailConfirmationData(userRow);
+    const user = new User(
+      {
+        login: userRow.login,
+        email: userRow.email,
+      },
+      userRow.password_hash,
+    );
+    user.createdAt = userRow.created_at;
+    user.emailConfirmation = emailConfirmation;
+    user.userId = userRow.id; // Сохранение идентификатора пользователя в объекте User
+
+    return user;
+  }*/
   async insertUser(user: Partial<User>) {
     const queryRunner = this.dataSource.createQueryRunner(); //создаем экземпляр запроса
     //await queryRunner.connect();
@@ -74,9 +89,7 @@ export class UserRepository {
       //Тут говорят лучше вернуть null а не ошибку, то есть ошибки должны быть в сервисе
       return null; // Возвращаем null, если пользователь не найден
     }
-    const userRow = result[0];
-    const emailConfirmation = new EmailConfirmation();
-    emailConfirmation.initEmailConfirmationData(userRow);
+    return UserMapper.toDomain(result[0]);
     /*emailConfirmation.isConfirmed = userRow.is_confirmed;
     emailConfirmation.confirmationCode = userRow.confirmation_code;
     emailConfirmation.confirmationCodeExpirationDate =
@@ -86,17 +99,6 @@ export class UserRepository {
       userRow.password_recovery_code_expiration_date;
     emailConfirmation.isPasswordRecoveryConfirmed =
       userRow.is_password_recovery_confirmed;*/
-    const user = new User(
-      {
-        login: userRow.login,
-        email: userRow.email,
-      },
-      userRow.password_hash,
-    );
-    user.createdAt = userRow.created_at;
-    user.emailConfirmation = emailConfirmation;
-    user.userId = userRow.id; // Сохранение идентификатора пользователя в объекте User
-    return user;
   }
   async save(user: User): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -155,8 +157,85 @@ export class UserRepository {
     }
   }
 
-  async findUserByConfirmationCode() {}
+  async findUserByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<User | null> {
+    const result = await this.dataSource.query(
+      `
+      SELECT u.*, e.*
+      FROM "Users" u
+      LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
+      WHERE e.confirmation_code = $1
+    `,
+      [confirmationCode],
+    );
+    if (result.length === 0) {
+      return null; // Возвращаем null, если пользователь не найден
+    }
+    return UserMapper.toDomain(result[0]);
+  }
 
+  async findUserByRecoveryCode(recoveryCode: string): Promise<User | null> {
+    const result = await this.dataSource.query(
+      `
+      SELECT u.*, e.*
+      FROM "Users" u
+      LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
+      WHERE e.password_recovery_code = $1
+    `,
+      [recoveryCode],
+    );
+    if (result.length === 0) {
+      return null; // Возвращаем null, если пользователь не найден
+    }
+    return UserMapper.toDomain(result[0]);
+  }
+  async findByLoginOrEmail(loginOrEmail: string): Promise<User | null> {
+    try {
+      const result = await this.dataSource.query(
+        `
+        SELECT u.*, e.*
+        FROM "Users" u
+        LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
+        WHERE u.email = $1 OR u.login = $1
+      `,
+        [loginOrEmail],
+      );
+
+      if (result.length === 0) {
+        return null; // Возвращаем null, если пользователь не найден
+      }
+
+      return UserMapper.toDomain(result[0]);
+    } catch (e) {
+      console.error('Error finding user by login or email:', e);
+      return null;
+    }
+  }
+  async deleteUserById(userId: string): Promise<boolean> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+
+    try {
+      const result = await queryRunner.query(
+        `
+        DELETE FROM "Users"
+        WHERE id = $1
+        RETURNING id
+      `,
+        [userId],
+      );
+
+      await queryRunner.commitTransaction();
+      return result.length > 0; // Возвращаем true, если удаление успешно
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error(`Failed to delete user with error: ${error}`);
+      return false;
+    } finally {
+      await queryRunner.release();
+    }
+  }
   /*constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
 
     async insertUser(user: Partial<User>) {

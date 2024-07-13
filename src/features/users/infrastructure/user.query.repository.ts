@@ -7,22 +7,34 @@ import {
   UserOutputDto,
 } from '../api/models/output/user.output.model';
 import { QueryOutputType } from '../../../base/adapters/query/query.class';
-
-// export abstract class BaseQueryRepository<M> {
-//     protected constructor(private model: Model<M>) {
-//     }
-//
-//     async find(filter: FilterQuery<M>,
-//                projection?: ProjectionType<M> | null | undefined,
-//                options?: QueryOptions<M> | null | undefined,
-//                pagination: {skip: number, limit: number }) {
-//         return this.model.find<M>(filter, projection, options)
-//     }
-// }
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class UserQueryRepository {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
+
+  async getUserById(userId: string): Promise<UserOutputDto> {
+    const result = await this.dataSource.query(
+      `
+      SELECT u.*, e.*
+      FROM "Users" u
+      LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
+      WHERE u.id = $1
+    `,
+      [userId],
+    );
+    if (result.length === 0) {
+      return null; // Возвращаем null, если пользователь не найден
+    }
+    const user = UserMapper.toDomain(result[0]);
+    return UserMapper.toView(user);
+  }
+  async getUsersWithPaging(query: QueryOutputType) {
+    const searchLoginTerm = query.searchLoginTerm ?? '';
+    const searchEmailTerm = query.searchEmailTerm ?? '';
+  }
+  /*constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async getUserById(userId: string): Promise<UserOutputDto> {
     const user = await this.userModel.findById(userId, { __v: false });
@@ -60,5 +72,5 @@ export class UserQueryRepository {
       console.log({ get_users_repo: e });
       return false;
     }
-  }
+  }*/
 }
