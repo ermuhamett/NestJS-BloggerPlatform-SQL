@@ -58,7 +58,7 @@ export class PostController {
     return await this.postService.createLikePost(
       postId,
       likeDto.likeStatus,
-      user.id.toString(),
+      user.userId.toString(), //Обновлено
       user.login,
     );
   }
@@ -97,12 +97,12 @@ export class PostController {
     }
     const newCommentId = await this.commentService.createComment(
       commentDto.content,
-      { id: user.id.toString(), login: user.login },
+      { id: user.userId.toString(), login: user.login },
       postId,
     );
     return await this.commentQueryRepository.getCommentById(
       newCommentId,
-      user.id.toString(),
+      user.userId.toString(),
     );
   }
 

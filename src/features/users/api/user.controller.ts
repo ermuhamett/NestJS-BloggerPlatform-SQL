@@ -25,7 +25,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 // Tag для swagger
 @ApiTags('Users')
-@Controller('users')
+@Controller('sa/users')
 // Установка guard на весь контроллер
 //@UseGuards(AuthGuard)
 export class UserController {

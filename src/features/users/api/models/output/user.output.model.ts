@@ -38,14 +38,15 @@ export class UserMapper {
   public static toDomain(userRow: any): User {
     const emailConfirmation = new EmailConfirmation();
     emailConfirmation.initEmailConfirmationData(userRow);
+    console.log('UserRow data: ', userRow);
     const user = new User(
       {
         login: userRow.login,
         email: userRow.email,
       },
-      userRow.password_hash,
+      userRow.passwordHash,
     );
-    user.createdAt = userRow.created_at;
+    user.createdAt = userRow.createdAt;
     user.emailConfirmation = emailConfirmation;
     user.userId = userRow.id; // Сохранение идентификатора пользователя в объекте User
 

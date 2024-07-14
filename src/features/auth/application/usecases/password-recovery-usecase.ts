@@ -23,7 +23,7 @@ export class PasswordRecoveryUseCase
       throw new HttpException('Email accepted', HttpStatus.OK);
     }
     user.updateEmailRecoveryData();
-    await user.save();
+    await this.userRepository.save(user);
     try {
       await this.emailService.sendPasswordRecoveryEmail(
         email,

@@ -19,7 +19,7 @@ export class UserQueryRepository {
       `
       SELECT u.*, e.*
       FROM "Users" u
-      LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
+      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
       WHERE u.id = $1
     `,
       [userId],
@@ -31,8 +31,53 @@ export class UserQueryRepository {
     return UserMapper.toView(user);
   }
   async getUsersWithPaging(query: QueryOutputType) {
+    console.log('Query in repo: ', query);
     const searchLoginTerm = query.searchLoginTerm ?? '';
     const searchEmailTerm = query.searchEmailTerm ?? '';
+    const sortBy = query.sortBy;
+    const sortDirection = query.sortDirection === 'asc' ? 'ASC' : 'DESC';
+    const offset = (query.pageNumber - 1) * query.pageSize;
+    const limit = query.pageSize;
+    const filterQuery = `
+      (u.login ILIKE '%' || $1 || '%'
+      OR u.email ILIKE '%' || $2 || '%')
+    `;
+    const totalCountResult = await this.dataSource.query(
+      `
+      SELECT COUNT(*) as count
+      FROM "Users" u
+      WHERE ${filterQuery}
+    `,
+      [searchLoginTerm, searchEmailTerm],
+    );
+    const totalCount = parseInt(totalCountResult[0].count, 10);
+    const pageCount = Math.ceil(totalCount / query.pageSize);
+    try {
+      const usersResult = await this.dataSource.query(
+        `
+        SELECT u.*, e.*
+        FROM "Users" u
+        LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
+        WHERE ${filterQuery}
+        ORDER BY u."${sortBy}" ${sortDirection}
+        OFFSET $3
+        LIMIT $4
+      `,
+        [searchLoginTerm, searchEmailTerm, offset, limit],
+      );
+      const users = usersResult.map(UserMapper.toDomain).map(UserMapper.toView);
+      console.log('Users: ', users);
+      return {
+        pagesCount: pageCount,
+        page: query.pageNumber,
+        pageSize: query.pageSize,
+        totalCount: totalCount,
+        items: users,
+      };
+    } catch (e) {
+      console.log({ get_users_repo: e });
+      return false;
+    }
   }
   /*constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 

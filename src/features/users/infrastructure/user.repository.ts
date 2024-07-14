@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { EmailConfirmation, User } from '../domain/user.sql.entity';
-import { UserCreateDto } from '../api/models/input/create-user.input.model';
 import { UserMapper } from '../api/models/output/user.output.model';
 
 @Injectable()
@@ -34,7 +33,7 @@ export class UserRepository {
       const emailConfirmationResult = await queryRunner.query(
         `
           INSERT INTO "EmailConfirmations" 
-          ("is_confirmed", "confirmation_code", "confirmation_code_expiration_date", "password_recovery_code", "password_recovery_code_expiration_date", "is_password_recovery_confirmed")
+          ("isConfirmed", "confirmationCode", "confirmationCodeExpirationDate", "passwordRecoveryCode", "passwordRecoveryCodeExpirationDate", "isPasswordRecoveryConfirmed")
           VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING id
         `,
@@ -51,7 +50,7 @@ export class UserRepository {
       const userResult = await queryRunner.query(
         `
           INSERT INTO "Users" 
-          ("login", "email", "password_hash", "created_at", "email_confirmation_id")
+          ("login", "email", "passwordHash", "createdAt", "emailConfirmationId")
           VALUES ($1, $2, $3, $4, $5)
           RETURNING id
         `,
@@ -80,7 +79,7 @@ export class UserRepository {
       `
           SELECT u.*, e.*
           FROM "Users" u
-          LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
+          LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
           WHERE u.id = $1
         `,
       [userId],
@@ -109,12 +108,12 @@ export class UserRepository {
       await queryRunner.query(
         `
         UPDATE "EmailConfirmations"
-        SET is_confirmed = $1,
-            confirmation_code = $2,
-            confirmation_code_expiration_date = $3,
-            password_recovery_code = $4,
-            password_recovery_code_expiration_date = $5,
-            is_password_recovery_confirmed = $6
+        SET "isConfirmed" = $1,
+            "confirmationCode" = $2,
+            "confirmationCodeExpirationDate" = $3,
+            "passwordRecoveryCode" = $4,
+            "passwordRecoveryCodeExpirationDate" = $5,
+            "isPasswordRecoveryConfirmed" = $6
         WHERE id = $7
       `,
         [
@@ -133,9 +132,9 @@ export class UserRepository {
         UPDATE "Users"
         SET login = $1,
             email = $2,
-            password_hash = $3,
-            created_at = $4,
-            email_confirmation_id = $5
+            "passwordHash" = $3,
+            "createdAt" = $4,
+            "emailConfirmationId" = $5
         WHERE id = $6
       `,
         [
@@ -164,8 +163,8 @@ export class UserRepository {
       `
       SELECT u.*, e.*
       FROM "Users" u
-      LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
-      WHERE e.confirmation_code = $1
+      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
+      WHERE e."confirmationCode" = $1
     `,
       [confirmationCode],
     );
@@ -180,8 +179,8 @@ export class UserRepository {
       `
       SELECT u.*, e.*
       FROM "Users" u
-      LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
-      WHERE e.password_recovery_code = $1
+      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
+      WHERE e.passwordRecoveryCode = $1
     `,
       [recoveryCode],
     );
@@ -196,7 +195,7 @@ export class UserRepository {
         `
         SELECT u.*, e.*
         FROM "Users" u
-        LEFT JOIN "EmailConfirmations" e ON u.email_confirmation_id = e.id
+        LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
         WHERE u.email = $1 OR u.login = $1
       `,
         [loginOrEmail],

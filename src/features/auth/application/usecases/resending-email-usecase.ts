@@ -32,7 +32,7 @@ export class ResendingEmailUseCase
       });
     }
     user.updateEmailConfirmationInfo();
-    await user.save();
+    await this.userRepository.save(user);
     try {
       await this.emailService.sendRegistrationEmail(
         email,

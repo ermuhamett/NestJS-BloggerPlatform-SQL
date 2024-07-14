@@ -39,6 +39,6 @@ export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
       });
     }
     user.updateConfirmationStatus();
-    await user.save();
+    await this.userRepository.save(user);
   }
 }

@@ -39,13 +39,13 @@ export class LoginUserUseCase implements ICommandHandler<LoginCommand> {
     const deviceId = uuidv4();
     //Создаем токены
     const { accessToken, refreshToken } = await this.jwtService.createPairToken(
-      user._id.toString(),
+      user.userId.toString(),
       deviceId,
     );
     //TODO Надо создать таблицу сессии, думаю можно сделать через не создав отдельный репу, короче надо думать
     await this.securityService.createAuthSession(
       refreshToken,
-      user._id.toString(),
+      user.userId.toString(),
       deviceName,
       ip,
     );

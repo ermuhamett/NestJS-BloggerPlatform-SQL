@@ -10,7 +10,7 @@ import { BasicStrategy } from '../../../common/strategies/basic.strategy';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    //MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     BcryptModule,
   ],
   providers: [BasicStrategy, UsersService, UserRepository, UserQueryRepository],

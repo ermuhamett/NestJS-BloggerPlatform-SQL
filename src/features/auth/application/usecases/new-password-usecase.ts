@@ -43,6 +43,6 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
     }
     const newPasswordHash = await this.bcryptService.generateHash(newPassword);
     user.updatePasswordRecoveryInfo(newPasswordHash);
-    await user.save();
+    await this.userRepository.save(user);
   }
 }
