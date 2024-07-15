@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { EmailConfirmation, User } from '../domain/user.sql.entity';
 import { UserMapper } from '../api/models/output/user.output.model';
 
@@ -94,122 +94,13 @@ export class UserRepository {
   async save(user: User): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
-
+    console.log('User data in save method: ', user);
     try {
-      // Получаем текущие данные пользователя из базы
       const existingUser = await this.find(user.userId);
-
-      if (!existingUser) {
-        throw new NotFoundException('User not found');
-      }
-
-      // Подготавливаем части для обновления EmailConfirmations
-      const emailFields = [];
-      const emailValues = [];
-      let emailIndex = 1;
-
-      if (
-        user.emailConfirmation.isConfirmed !==
-        existingUser.emailConfirmation.isConfirmed
-      ) {
-        emailFields.push(`"isConfirmed" = $${emailIndex}`);
-        emailValues.push(user.emailConfirmation.isConfirmed);
-        emailIndex++;
-      }
-      if (
-        user.emailConfirmation.confirmationCode !==
-        existingUser.emailConfirmation.confirmationCode
-      ) {
-        emailFields.push(`"confirmationCode" = $${emailIndex}`);
-        emailValues.push(user.emailConfirmation.confirmationCode);
-        emailIndex++;
-      }
-      if (
-        user.emailConfirmation.confirmationCodeExpirationDate !==
-        existingUser.emailConfirmation.confirmationCodeExpirationDate
-      ) {
-        emailFields.push(`"confirmationCodeExpirationDate" = $${emailIndex}`);
-        emailValues.push(user.emailConfirmation.confirmationCodeExpirationDate);
-        emailIndex++;
-      }
-      if (
-        user.emailConfirmation.passwordRecoveryCode !==
-        existingUser.emailConfirmation.passwordRecoveryCode
-      ) {
-        emailFields.push(`"passwordRecoveryCode" = $${emailIndex}`);
-        emailValues.push(user.emailConfirmation.passwordRecoveryCode);
-        emailIndex++;
-      }
-      if (
-        user.emailConfirmation.passwordRecoveryCodeExpirationDate !==
-        existingUser.emailConfirmation.passwordRecoveryCodeExpirationDate
-      ) {
-        emailFields.push(
-          `"passwordRecoveryCodeExpirationDate" = $${emailIndex}`,
-        );
-        emailValues.push(
-          user.emailConfirmation.passwordRecoveryCodeExpirationDate,
-        );
-        emailIndex++;
-      }
-      if (
-        user.emailConfirmation.isPasswordRecoveryConfirmed !==
-        existingUser.emailConfirmation.isPasswordRecoveryConfirmed
-      ) {
-        emailFields.push(`"isPasswordRecoveryConfirmed" = $${emailIndex}`);
-        emailValues.push(user.emailConfirmation.isPasswordRecoveryConfirmed);
-        emailIndex++;
-      }
-
-      if (emailFields.length > 0) {
-        emailFields.push(`"emailId" = $${emailIndex}`);
-        emailValues.push(user.emailConfirmationId);
-
-        await queryRunner.query(
-          `UPDATE "EmailConfirmations"
-                SET ${emailFields.join(', ')}
-                WHERE "emailId" = $${emailIndex}`,
-          emailValues,
-        );
-      }
-
-      // Подготавливаем части для обновления Users
-      const userFields = [];
-      const userValues = [];
-      let userIndex = 1;
-
-      if (user.login !== existingUser.login) {
-        userFields.push(`login = $${userIndex}`);
-        userValues.push(user.login);
-        userIndex++;
-      }
-      if (user.email !== existingUser.email) {
-        userFields.push(`email = $${userIndex}`);
-        userValues.push(user.email);
-        userIndex++;
-      }
-      if (user.passwordHash !== existingUser.passwordHash) {
-        userFields.push(`"passwordHash" = $${userIndex}`);
-        userValues.push(user.passwordHash);
-        userIndex++;
-      }
-      if (user.createdAt !== existingUser.createdAt) {
-        userFields.push(`"createdAt" = $${userIndex}`);
-        userValues.push(user.createdAt);
-        userIndex++;
-      }
-
-      if (userFields.length > 0) {
-        userFields.push(`"userId" = $${userIndex}`);
-        userValues.push(user.userId);
-
-        await queryRunner.query(
-          `UPDATE "Users"
-                SET ${userFields.join(', ')}
-                WHERE "userId" = $${userIndex}`,
-          userValues,
-        );
-      }
+      console.log('User object in save method: ', user);
+      console.log('User object from database: ', existingUser);
+      await this.updateEmailConfirmations(queryRunner, user, existingUser);
+      await this.updateUsers(queryRunner, user, existingUser);
 
       await queryRunner.commitTransaction();
     } catch (error) {
@@ -218,6 +109,91 @@ export class UserRepository {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private async updateEmailConfirmations(
+    queryRunner: QueryRunner,
+    user: User,
+    existingUser: User,
+  ): Promise<void> {
+    const emailConfirmationFields = [
+      'isConfirmed',
+      'confirmationCode',
+      'confirmationCodeExpirationDate',
+      'isPasswordRecoveryConfirmed',
+      'passwordRecoveryCode',
+      'passwordRecoveryCodeExpirationDate',
+    ];
+    const fieldsToUpdate = this.getFieldsToUpdateForTable(
+      user.emailConfirmation,
+      existingUser.emailConfirmation,
+      emailConfirmationFields,
+    );
+    console.log('Fields to update for EmailConfirmations: ', fieldsToUpdate);
+    if (fieldsToUpdate.length > 0) {
+      const setClauses = fieldsToUpdate.map(
+        (field, index) => `"${field}" = $${index + 1}`,
+      );
+      const values = fieldsToUpdate.map(
+        (field) => user.emailConfirmation[field],
+      );
+      values.push(user.emailConfirmationId);
+
+      await queryRunner.query(
+        `UPDATE "EmailConfirmations"
+                SET ${setClauses.join(', ')}
+                WHERE "emailId" = $${fieldsToUpdate.length + 1}`,
+        values,
+      );
+    }
+  }
+
+  private async updateUsers(
+    queryRunner: QueryRunner,
+    user: User,
+    existingUser: User,
+  ): Promise<void> {
+    const userFields = ['login', 'email', 'passwordHash', 'createdAt'];
+    const fieldsToUpdate = this.getFieldsToUpdateForTable(
+      user,
+      existingUser,
+      userFields,
+    );
+    console.log('Fields to update for Users: ', fieldsToUpdate);
+    if (fieldsToUpdate.length > 0) {
+      const setClauses = fieldsToUpdate.map(
+        (field, index) => `"${field}" = $${index + 1}`,
+      );
+      const values = fieldsToUpdate.map((field) => user[field]);
+      values.push(user.userId);
+
+      await queryRunner.query(
+        `UPDATE "Users"
+                SET ${setClauses.join(', ')}
+                WHERE "userId" = $${fieldsToUpdate.length + 1}`,
+        values,
+      );
+    }
+  }
+
+  private getFieldsToUpdateForTable(
+    obj1: any,
+    obj2: any,
+    fields: string[],
+  ): string[] {
+    const fieldsToUpdate: string[] = [];
+    for (const key of fields) {
+      if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
+        if (obj1[key] instanceof Date && obj2[key] instanceof Date) {
+          if (obj1[key].getTime() !== obj2[key].getTime()) {
+            fieldsToUpdate.push(key);
+          }
+        } else if (obj1[key] !== obj2[key]) {
+          fieldsToUpdate.push(key);
+        }
+      }
+    }
+    return fieldsToUpdate;
   }
 
   /*async save(user: User): Promise<void> {
