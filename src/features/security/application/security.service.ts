@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { SecurityRepository } from '../infrastructure/security.repository';
 import { JwtService } from '@nestjs/jwt';
-import { Session } from '../domain/security.entity';
+import { Session } from '../domain/security.sql.entity';
+//import { Session } from '../domain/security.entity';
 
 @Injectable()
 export class SecurityService {
@@ -69,7 +70,7 @@ export class SecurityService {
     }
     session.createdAt = lastActiveData;
     console.log('Updated session: ', session);
-    await session.save();
+    await this.securityRepository.save(session); //session.save();
   }
 
   async revokeAuthSession(userId: string, deviceId: string, createdAt: number) {
@@ -81,7 +82,8 @@ export class SecurityService {
     if (!session) {
       throw new UnauthorizedException('Session not found');
     }
-    await session.deleteOne(); // Удаляем сессию
+    await this.securityRepository.terminateSessionById(session.deviceId);
+    //await session.deleteOne(); // Удаляем сессию
   }
 
   async terminateAllOtherSessions(currentDeviceId: string, userId: string) {

@@ -1,12 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Session } from '../domain/security.entity';
-import { Model } from 'mongoose';
 import { SecurityMapper } from '../api/models/output/security.output.model';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class SecurityQueryRepository {
-  constructor(
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
+
+  async getDevices(userId: string) {
+    const result = await this.dataSource.query(
+      `SELECT * FROM "Sessions" WHERE "userId" = $1`,
+      [userId],
+    );
+    console.log('Auth session in getDevices: ', result);
+    if (result.length === 0) {
+      throw new NotFoundException('Session not found');
+    }
+    return result.map(SecurityMapper.toView);
+  }
+  /*constructor(
     @InjectModel(Session.name) private sessionModel: Model<Session>,
   ) {}
 
@@ -17,5 +29,5 @@ export class SecurityQueryRepository {
       throw new NotFoundException('Session not found');
     }
     return authSessions.map(SecurityMapper.toView);
-  }
+  }*/
 }

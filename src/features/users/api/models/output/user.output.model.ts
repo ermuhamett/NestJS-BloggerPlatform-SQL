@@ -36,9 +36,9 @@ export class UserMapper {
     };
   }
   public static toDomain(userRow: any): User {
+    //console.log('UserRow data: ', userRow);
     const emailConfirmation = new EmailConfirmation();
     emailConfirmation.initEmailConfirmationData(userRow);
-    console.log('UserRow data: ', userRow);
     const user = new User(
       {
         login: userRow.login,
@@ -47,9 +47,10 @@ export class UserMapper {
       userRow.passwordHash,
     );
     user.createdAt = userRow.createdAt;
+    user.emailConfirmationId = userRow.emailConfirmationId;
     user.emailConfirmation = emailConfirmation;
-    user.userId = userRow.id; // Сохранение идентификатора пользователя в объекте User
-
+    user.userId = userRow.userId; // Сохранение идентификатора пользователя в объекте User
+    //console.log('User as a object in toDomain method: ', user);
     return user;
   }
 }

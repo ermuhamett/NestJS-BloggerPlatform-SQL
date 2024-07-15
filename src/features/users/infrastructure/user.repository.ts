@@ -35,7 +35,7 @@ export class UserRepository {
           INSERT INTO "EmailConfirmations" 
           ("isConfirmed", "confirmationCode", "confirmationCodeExpirationDate", "passwordRecoveryCode", "passwordRecoveryCodeExpirationDate", "isPasswordRecoveryConfirmed")
           VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING id
+          RETURNING "emailId"
         `,
         [
           user.emailConfirmation.isConfirmed,
@@ -46,13 +46,13 @@ export class UserRepository {
           user.emailConfirmation.isPasswordRecoveryConfirmed,
         ],
       );
-      const emailConfirmationId = emailConfirmationResult[0].id;
+      const emailConfirmationId = emailConfirmationResult[0].emailId;
       const userResult = await queryRunner.query(
         `
           INSERT INTO "Users" 
           ("login", "email", "passwordHash", "createdAt", "emailConfirmationId")
           VALUES ($1, $2, $3, $4, $5)
-          RETURNING id
+          RETURNING "userId"
         `,
         [
           user.login,
@@ -64,7 +64,7 @@ export class UserRepository {
       );
 
       await queryRunner.commitTransaction();
-      user.userId = userResult[0].id; // Сохранение идентификатора пользователя в объекте User
+      user.userId = userResult[0].userId; // Сохранение идентификатора пользователя в объекте User
       return user.userId;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -79,8 +79,8 @@ export class UserRepository {
       `
           SELECT u.*, e.*
           FROM "Users" u
-          LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
-          WHERE u.id = $1
+          LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e."emailId"
+          WHERE u."userId" = $1
         `,
       [userId],
     );
@@ -89,17 +89,139 @@ export class UserRepository {
       return null; // Возвращаем null, если пользователь не найден
     }
     return UserMapper.toDomain(result[0]);
-    /*emailConfirmation.isConfirmed = userRow.is_confirmed;
-    emailConfirmation.confirmationCode = userRow.confirmation_code;
-    emailConfirmation.confirmationCodeExpirationDate =
-      userRow.confirmation_code_expiration_date;
-    emailConfirmation.passwordRecoveryCode = userRow.password_recovery_code;
-    emailConfirmation.passwordRecoveryCodeExpirationDate =
-      userRow.password_recovery_code_expiration_date;
-    emailConfirmation.isPasswordRecoveryConfirmed =
-      userRow.is_password_recovery_confirmed;*/
   }
+
   async save(user: User): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+
+    try {
+      // Получаем текущие данные пользователя из базы
+      const existingUser = await this.find(user.userId);
+
+      if (!existingUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Подготавливаем части для обновления EmailConfirmations
+      const emailFields = [];
+      const emailValues = [];
+      let emailIndex = 1;
+
+      if (
+        user.emailConfirmation.isConfirmed !==
+        existingUser.emailConfirmation.isConfirmed
+      ) {
+        emailFields.push(`"isConfirmed" = $${emailIndex}`);
+        emailValues.push(user.emailConfirmation.isConfirmed);
+        emailIndex++;
+      }
+      if (
+        user.emailConfirmation.confirmationCode !==
+        existingUser.emailConfirmation.confirmationCode
+      ) {
+        emailFields.push(`"confirmationCode" = $${emailIndex}`);
+        emailValues.push(user.emailConfirmation.confirmationCode);
+        emailIndex++;
+      }
+      if (
+        user.emailConfirmation.confirmationCodeExpirationDate !==
+        existingUser.emailConfirmation.confirmationCodeExpirationDate
+      ) {
+        emailFields.push(`"confirmationCodeExpirationDate" = $${emailIndex}`);
+        emailValues.push(user.emailConfirmation.confirmationCodeExpirationDate);
+        emailIndex++;
+      }
+      if (
+        user.emailConfirmation.passwordRecoveryCode !==
+        existingUser.emailConfirmation.passwordRecoveryCode
+      ) {
+        emailFields.push(`"passwordRecoveryCode" = $${emailIndex}`);
+        emailValues.push(user.emailConfirmation.passwordRecoveryCode);
+        emailIndex++;
+      }
+      if (
+        user.emailConfirmation.passwordRecoveryCodeExpirationDate !==
+        existingUser.emailConfirmation.passwordRecoveryCodeExpirationDate
+      ) {
+        emailFields.push(
+          `"passwordRecoveryCodeExpirationDate" = $${emailIndex}`,
+        );
+        emailValues.push(
+          user.emailConfirmation.passwordRecoveryCodeExpirationDate,
+        );
+        emailIndex++;
+      }
+      if (
+        user.emailConfirmation.isPasswordRecoveryConfirmed !==
+        existingUser.emailConfirmation.isPasswordRecoveryConfirmed
+      ) {
+        emailFields.push(`"isPasswordRecoveryConfirmed" = $${emailIndex}`);
+        emailValues.push(user.emailConfirmation.isPasswordRecoveryConfirmed);
+        emailIndex++;
+      }
+
+      if (emailFields.length > 0) {
+        emailFields.push(`"emailId" = $${emailIndex}`);
+        emailValues.push(user.emailConfirmationId);
+
+        await queryRunner.query(
+          `UPDATE "EmailConfirmations"
+                SET ${emailFields.join(', ')}
+                WHERE "emailId" = $${emailIndex}`,
+          emailValues,
+        );
+      }
+
+      // Подготавливаем части для обновления Users
+      const userFields = [];
+      const userValues = [];
+      let userIndex = 1;
+
+      if (user.login !== existingUser.login) {
+        userFields.push(`login = $${userIndex}`);
+        userValues.push(user.login);
+        userIndex++;
+      }
+      if (user.email !== existingUser.email) {
+        userFields.push(`email = $${userIndex}`);
+        userValues.push(user.email);
+        userIndex++;
+      }
+      if (user.passwordHash !== existingUser.passwordHash) {
+        userFields.push(`"passwordHash" = $${userIndex}`);
+        userValues.push(user.passwordHash);
+        userIndex++;
+      }
+      if (user.createdAt !== existingUser.createdAt) {
+        userFields.push(`"createdAt" = $${userIndex}`);
+        userValues.push(user.createdAt);
+        userIndex++;
+      }
+
+      if (userFields.length > 0) {
+        userFields.push(`"userId" = $${userIndex}`);
+        userValues.push(user.userId);
+
+        await queryRunner.query(
+          `UPDATE "Users"
+                SET ${userFields.join(', ')}
+                WHERE "userId" = $${userIndex}`,
+          userValues,
+        );
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new NotFoundException('User save failed');
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /*async save(user: User): Promise<void> {
+    //console.log('User data in save method: ', user);
     const queryRunner = this.dataSource.createQueryRunner();
     //await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -114,7 +236,7 @@ export class UserRepository {
             "passwordRecoveryCode" = $4,
             "passwordRecoveryCodeExpirationDate" = $5,
             "isPasswordRecoveryConfirmed" = $6
-        WHERE id = $7
+        WHERE "emailId" = $7
       `,
         [
           user.emailConfirmation.isConfirmed,
@@ -123,7 +245,7 @@ export class UserRepository {
           user.emailConfirmation.passwordRecoveryCode,
           user.emailConfirmation.passwordRecoveryCodeExpirationDate,
           user.emailConfirmation.isPasswordRecoveryConfirmed,
-          user.emailConfirmation.id,
+          user.emailConfirmationId,
         ],
       );
 
@@ -133,16 +255,14 @@ export class UserRepository {
         SET login = $1,
             email = $2,
             "passwordHash" = $3,
-            "createdAt" = $4,
-            "emailConfirmationId" = $5
-        WHERE id = $6
+            "createdAt" = $4
+        WHERE "userId" = $5
       `,
         [
           user.login,
           user.email,
           user.passwordHash,
           user.createdAt,
-          user.emailConfirmation.id,
           user.userId,
         ],
       );
@@ -154,7 +274,7 @@ export class UserRepository {
     } finally {
       await queryRunner.release();
     }
-  }
+  }*/
 
   async findUserByConfirmationCode(
     confirmationCode: string,
@@ -163,11 +283,12 @@ export class UserRepository {
       `
       SELECT u.*, e.*
       FROM "Users" u
-      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
+      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e."emailId"
       WHERE e."confirmationCode" = $1
     `,
       [confirmationCode],
     );
+    console.log('Result query in db: ', result[0]);
     if (result.length === 0) {
       return null; // Возвращаем null, если пользователь не найден
     }
@@ -179,8 +300,8 @@ export class UserRepository {
       `
       SELECT u.*, e.*
       FROM "Users" u
-      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
-      WHERE e.passwordRecoveryCode = $1
+      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e."emailId"
+      WHERE e."passwordRecoveryCode" = $1
     `,
       [recoveryCode],
     );
@@ -195,7 +316,7 @@ export class UserRepository {
         `
         SELECT u.*, e.*
         FROM "Users" u
-        LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
+        LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e."emailId"
         WHERE u.email = $1 OR u.login = $1
       `,
         [loginOrEmail],
@@ -219,8 +340,8 @@ export class UserRepository {
       const result = await queryRunner.query(
         `
         DELETE FROM "Users"
-        WHERE id = $1
-        RETURNING id
+        WHERE "userId" = $1
+        RETURNING "userId"
       `,
         [userId],
       );

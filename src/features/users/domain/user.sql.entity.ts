@@ -65,6 +65,7 @@ export class User {
   email: string;
   passwordHash: string;
   createdAt: string;
+  emailConfirmationId: string;
   emailConfirmation: EmailConfirmation;
   constructor(data: Partial<User>, passwordHash: string) {
     //this.userId = data.userId;

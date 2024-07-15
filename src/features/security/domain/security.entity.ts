@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-@Schema()
+/*@Schema()
 export class Session {
   @Prop({ required: true })
   ip: string;
@@ -33,4 +33,4 @@ export class Session {
 
 export const SessionSchema = SchemaFactory.createForClass(Session);
 SessionSchema.loadClass(Session);
-export type SessionDocument = HydratedDocument<Session>;
+export type SessionDocument = HydratedDocument<Session>;*/

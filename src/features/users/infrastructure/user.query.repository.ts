@@ -19,8 +19,8 @@ export class UserQueryRepository {
       `
       SELECT u.*, e.*
       FROM "Users" u
-      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
-      WHERE u.id = $1
+      LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e."emailId"
+      WHERE u."userId" = $1
     `,
       [userId],
     );
@@ -57,7 +57,7 @@ export class UserQueryRepository {
         `
         SELECT u.*, e.*
         FROM "Users" u
-        LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e.id
+        LEFT JOIN "EmailConfirmations" e ON u."emailConfirmationId" = e."emailId"
         WHERE ${filterQuery}
         ORDER BY u."${sortBy}" ${sortDirection}
         OFFSET $3
@@ -66,7 +66,6 @@ export class UserQueryRepository {
         [searchLoginTerm, searchEmailTerm, offset, limit],
       );
       const users = usersResult.map(UserMapper.toDomain).map(UserMapper.toView);
-      console.log('Users: ', users);
       return {
         pagesCount: pageCount,
         page: query.pageNumber,

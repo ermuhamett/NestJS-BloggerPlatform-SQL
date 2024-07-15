@@ -60,6 +60,9 @@ export class SecurityController {
         HttpStatus.FORBIDDEN,
       );
     }
-    await deletedAuthSession.deleteOne();
+    await this.securityService.terminateSessionById(
+      deletedAuthSession.deviceId,
+    );
+    //await deletedAuthSession.deleteOne();
   }
 }

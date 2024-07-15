@@ -37,6 +37,7 @@ export class LoginUserUseCase implements ICommandHandler<LoginCommand> {
       throw new UnauthorizedException('Incorrect password');
     }
     const deviceId = uuidv4();
+    console.log('User data in login use case: ', user);
     //Создаем токены
     const { accessToken, refreshToken } = await this.jwtService.createPairToken(
       user.userId.toString(),

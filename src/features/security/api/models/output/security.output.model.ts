@@ -1,4 +1,5 @@
-import { SessionDocument } from '../../../domain/security.entity';
+//import { SessionDocument } from '../../../domain/security.entity';
+import { Session } from '../../../domain/security.sql.entity';
 
 export class SecurityOutputDto {
   constructor(
@@ -10,7 +11,7 @@ export class SecurityOutputDto {
 }
 
 export class SecurityMapper {
-  public static toView(session: SessionDocument): SecurityOutputDto {
+  public static toView(session: Session): SecurityOutputDto {
     console.log('session.createdAt:', session.createdAt);
     return {
       ip: session.ip,

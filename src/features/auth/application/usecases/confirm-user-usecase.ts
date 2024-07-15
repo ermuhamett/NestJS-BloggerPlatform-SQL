@@ -12,7 +12,9 @@ export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
 
   async execute(command: ConfirmUserCommand) {
     const { code } = command;
+    console.log('Confirmation code:', code);
     const user = await this.userRepository.findUserByConfirmationCode(code);
+    console.log('User in emailConfirmation usecase: ', user);
     if (!user) {
       throw new BadRequestException({
         message: 'Invalid Code',
@@ -39,6 +41,7 @@ export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
       });
     }
     user.updateConfirmationStatus();
+    console.log('User data after confirmation status: ', user);
     await this.userRepository.save(user);
   }
 }
