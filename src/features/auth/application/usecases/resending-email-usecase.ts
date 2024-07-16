@@ -34,7 +34,7 @@ export class ResendingEmailUseCase
     user.updateEmailConfirmationInfo();
     await this.userRepository.save(user);
     try {
-      await this.emailService.sendRegistrationEmail(
+      this.emailService.sendRegistrationEmail(
         email,
         user.emailConfirmation.confirmationCode,
       );

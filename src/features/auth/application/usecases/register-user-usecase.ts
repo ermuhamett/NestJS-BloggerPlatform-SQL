@@ -21,7 +21,7 @@ export class RegisterUserUseCase implements ICommandHandler<RegisterCommand> {
     try {
       const userId = await this.userService.create(dto);
       const createdUser = await this.userRepository.find(userId);
-      await this.emailService.sendRegistrationEmail(
+      this.emailService.sendRegistrationEmail(
         createdUser.email,
         createdUser.emailConfirmation.confirmationCode,
       );
