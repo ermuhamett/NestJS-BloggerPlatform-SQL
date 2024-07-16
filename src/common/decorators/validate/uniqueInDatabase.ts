@@ -6,7 +6,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { UserRepository } from '../../../features/users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../../features/users/infrastructure/user.repository';
 
 // Обязательна регистрация в ioc
 @ValidatorConstraint({ name: 'IsUnique', async: true })
@@ -16,7 +16,7 @@ import { UserRepository } from '../../../features/users/infrastructure/user.repo
 // и устанавливается асинхронный режим валидации.
 @Injectable()
 export class IsUniqueConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly userRepository: UserRepository) {
+  constructor(private readonly userRepository: UserRepositorySql) {
     console.log('IsUniqueConstraint initialized');
     console.log('UserRepository:', this.userRepository);
   }

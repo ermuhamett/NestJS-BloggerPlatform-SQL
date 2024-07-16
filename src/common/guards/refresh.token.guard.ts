@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserRepository } from '../../features/users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../features/users/infrastructure/user.repository';
 import { JwtService } from '@nestjs/jwt';
 import { SecurityRepository } from '../../features/security/infrastructure/security.repository';
 //import { ConfigService } from '@nestjs/config';
@@ -14,7 +14,7 @@ import { SecurityRepository } from '../../features/security/infrastructure/secur
 export class RefreshTokenGuard implements CanActivate {
   //private readonly _secretKey: string;
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepositorySql,
     private readonly jwtService: JwtService,
     private readonly securityRepository: SecurityRepository, //private readonly configService: ConfigService,
   ) {

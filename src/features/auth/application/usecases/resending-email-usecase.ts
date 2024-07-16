@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../../users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../../users/infrastructure/user.repository';
 import { EmailService } from '../../../../base/adapters/email/email.service';
 import { BadRequestException } from '@nestjs/common';
 
@@ -12,7 +12,7 @@ export class ResendingEmailUseCase
   implements ICommandHandler<ResendingEmailCommand>
 {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepositorySql,
     private readonly emailService: EmailService,
   ) {}
 

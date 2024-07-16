@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LoginInputDto } from '../../api/models/input/create-auth.input.model';
 import { UnauthorizedException } from '@nestjs/common';
-import { UserRepository } from '../../../users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../../users/infrastructure/user.repository';
 import { BcryptService } from '../../../../base/adapters/auth/bcrypt.service';
 import { JwtService } from '../../../../base/adapters/auth/jwt.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,7 +17,7 @@ export class LoginCommand {
 @CommandHandler(LoginCommand)
 export class LoginUserUseCase implements ICommandHandler<LoginCommand> {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepositorySql,
     private readonly bcryptService: BcryptService,
     private readonly jwtService: JwtService,
     private readonly securityService: SecurityService,

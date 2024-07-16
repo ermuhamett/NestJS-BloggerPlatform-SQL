@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../../users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../../users/infrastructure/user.repository';
 import { BcryptService } from '../../../../base/adapters/auth/bcrypt.service';
 import { BadRequestException } from '@nestjs/common';
 
@@ -13,7 +13,7 @@ export class NewPasswordCommand {
 @CommandHandler(NewPasswordCommand)
 export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepositorySql,
     private readonly bcryptService: BcryptService,
   ) {}
 

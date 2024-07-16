@@ -12,7 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserQueryRepository } from '../infrastructure/user.query.repository';
+import { UserQueryRepositorySql } from '../infrastructure/user.query.repository';
 import { UsersService } from '../application/users.service';
 import { UserCreateDto } from './models/input/create-user.input.model';
 import { UserOutputDto } from './models/output/user.output.model';
@@ -20,7 +20,7 @@ import {
   QueryInputType,
   QueryParams,
 } from '../../../base/adapters/query/query.class';
-import { UserRepository } from '../infrastructure/user.repository';
+import { UserRepositorySql } from '../infrastructure/user.repository';
 import { AuthGuard } from '@nestjs/passport';
 
 // Tag для swagger
@@ -31,8 +31,8 @@ import { AuthGuard } from '@nestjs/passport';
 export class UserController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly userRepository: UserRepository,
-    private readonly usersQueryRepository: UserQueryRepository,
+    private readonly userRepository: UserRepositorySql,
+    private readonly usersQueryRepository: UserQueryRepositorySql,
   ) {}
 
   /*@Get()

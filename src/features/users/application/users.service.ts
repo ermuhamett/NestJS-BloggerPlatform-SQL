@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { UserRepository } from '../infrastructure/user.repository';
+import { UserRepositorySql } from '../infrastructure/user.repository';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
 import { BcryptService } from '../../../base/adapters/auth/bcrypt.service';
 import { User } from '../domain/user.sql.entity';
@@ -8,7 +8,7 @@ import { User } from '../domain/user.sql.entity';
 @Injectable()
 export class UsersService {
   constructor(
-    private usersRepository: UserRepository,
+    private usersRepository: UserRepositorySql,
     private readonly bcryptService: BcryptService,
   ) {}
 

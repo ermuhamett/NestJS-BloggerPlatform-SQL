@@ -1,6 +1,6 @@
 import { UserCreateDto } from '../../../users/api/models/input/create-user.input.model';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../../users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../../users/infrastructure/user.repository';
 import { EmailService } from '../../../../base/adapters/email/email.service';
 import { UsersService } from '../../../users/application/users.service';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -12,7 +12,7 @@ export class RegisterCommand {
 @CommandHandler(RegisterCommand)
 export class RegisterUserUseCase implements ICommandHandler<RegisterCommand> {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepositorySql,
     private readonly emailService: EmailService,
     private readonly userService: UsersService,
   ) {}

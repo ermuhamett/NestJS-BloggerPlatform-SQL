@@ -24,7 +24,7 @@ import {
 } from '../../../../base/adapters/query/query.class';
 import { CommentQueryRepository } from '../../comments/infrastructure/comment.query.repository';
 import { LikeInputDto } from '../../../likes/api/models/likes.info.model';
-import { UserRepository } from '../../../users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../../users/infrastructure/user.repository';
 import { AuthGuard } from '@nestjs/passport';
 import { CommentCreateDto } from '../../comments/api/models/input/comment.input.model';
 import { CommentService } from '../../comments/application/comment.service';
@@ -39,7 +39,7 @@ export class PostController {
     private postRepository: PostRepository,
     private postQueryRepository: PostQueryRepository,
     private commentQueryRepository: CommentQueryRepository,
-    private userRepository: UserRepository,
+    private userRepository: UserRepositorySql,
   ) {}
 
   @UseGuards(AuthGuard('jwt'))

@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../../users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../../users/infrastructure/user.repository';
 import { BadRequestException } from '@nestjs/common';
 
 export class ConfirmUserCommand {
@@ -8,7 +8,7 @@ export class ConfirmUserCommand {
 
 @CommandHandler(ConfirmUserCommand)
 export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(private readonly userRepository: UserRepositorySql) {}
 
   async execute(command: ConfirmUserCommand) {
     const { code } = command;
