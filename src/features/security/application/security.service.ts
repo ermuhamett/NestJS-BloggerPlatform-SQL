@@ -24,7 +24,7 @@ export class SecurityService {
   ) {
     const tokenData = await this.jwtService.decode(refreshToken);
     const dto: Session = {
-      userId,
+      userIdFk: userId,
       deviceId: tokenData.deviceId,
       deviceName,
       ip,

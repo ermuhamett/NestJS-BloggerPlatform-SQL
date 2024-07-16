@@ -8,11 +8,12 @@ export class SecurityQueryRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async getDevices(userId: string) {
+    //console.log('UserId in getDevices: ', userId);
     const result = await this.dataSource.query(
-      `SELECT * FROM "Sessions" WHERE "userId" = $1`,
+      `SELECT * FROM "Sessions" WHERE "userIdFk" = $1`,
       [userId],
     );
-    console.log('Auth session in getDevices: ', result);
+    //console.log('Auth session in getDevices: ', result);
     if (result.length === 0) {
       throw new NotFoundException('Session not found');
     }

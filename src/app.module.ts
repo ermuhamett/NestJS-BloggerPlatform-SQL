@@ -8,7 +8,7 @@ import { UserModule } from './features/users/api/user.module';
 import { AuthModule } from './features/auth/api/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { IsUniqueConstraint } from './common/decorators/validate/uniqueInDatabase';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { seconds, ThrottlerModule } from '@nestjs/throttler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { BlogExistConstraint } from './common/decorators/validate/blogIdValidate';
 import { SecurityModule } from './features/security/api/security.module';
@@ -32,7 +32,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([
       {
-        ttl: 10000, // Время в миллисекундах, за которое считается количество запросов
+        ttl: seconds(10), // Время в миллисекундах, за которое считается количество запросов
         limit: 5, // Максимальное количество запросов за указанный период времени
       },
     ]),

@@ -26,7 +26,7 @@ export class SecurityRepository {
         session.ip,
         session.deviceId,
         session.deviceName,
-        session.userId,
+        session.userIdFk,
         session.createdAt,
         session.expirationDate,
       ],
@@ -52,7 +52,7 @@ export class SecurityRepository {
     }*/
 
     const result = await this.dataSource.query(query, params);
-    console.log('Finded session in db: ', result);
+    //console.log('Finded session in db: ', result);
     return result.length ? result[0] : null;
   }
   async findSessionByDeviceId(deviceId: string): Promise<Session | null> {
@@ -87,7 +87,7 @@ export class SecurityRepository {
     }
   }
   async save(session: Partial<Session>) {
-    const { deviceId, ip, deviceName, userId, createdAt, expirationDate } =
+    const { deviceId, ip, deviceName, userIdFk, createdAt, expirationDate } =
       session;
     try {
       await this.dataSource.query(
@@ -101,7 +101,7 @@ export class SecurityRepository {
           "expirationDate" = COALESCE($5, "expirationDate")
         WHERE "deviceId" = $6
         `,
-        [ip, deviceName, userId, createdAt, expirationDate, deviceId],
+        [ip, deviceName, userIdFk, createdAt, expirationDate, deviceId],
       );
     } catch (error) {
       console.error('Error saving session:', error);
