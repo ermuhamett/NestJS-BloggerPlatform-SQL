@@ -52,7 +52,6 @@ export class SecurityRepository {
     }*/
 
     const result = await this.dataSource.query(query, params);
-    //console.log('Finded session in db: ', result);
     return result.length ? result[0] : null;
   }
   async findSessionByDeviceId(deviceId: string): Promise<Session | null> {

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
 
 export class EmailConfirmation {
-  id: string; //PK
+  id: string; //PK, emailId in database
   isConfirmed: boolean;
   confirmationCode: string;
   confirmationCodeExpirationDate: Date;
