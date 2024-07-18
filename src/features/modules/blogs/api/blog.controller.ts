@@ -28,7 +28,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { OptionalAuthGuard } from '../../../../common/guards/optional.auth.guard';
 
-@ApiTags('Blogs')
+/*@ApiTags('Blogs')
 @Controller('sa/blogs')
 export class BlogController {
   constructor(
@@ -112,7 +112,7 @@ export class BlogController {
     return await this.blogQueryRepository.getBlogsWithPaging(sanitizedQuery);
     //work
   }*/
-
+/*
   @UseGuards(OptionalAuthGuard)
   @Get(':blogId/posts')
   async getPostsForBlog(
@@ -144,4 +144,4 @@ export class BlogController {
     //Тут вроде как возвращает false что неправильно наверное
     //work
   }
-}
+}*/

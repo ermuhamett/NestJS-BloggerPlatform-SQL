@@ -2,7 +2,6 @@ import { Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/domain/blog.entity';
 import { Post, PostSchema } from './posts/domain/post.entity';
-import { BlogController } from './blogs/api/blog.controller';
 import { BlogService } from './blogs/application/blog.service';
 import { PostService } from './posts/application/post.service';
 import { BlogRepository } from './blogs/infrastructure/blog.repository';
@@ -28,6 +27,8 @@ import { CommentRepository } from './comments/infrastructure/comment.repository'
 import { UserModule } from '../users/api/user.module';
 import { CommentExistenceGuard } from '../../common/guards/comment.existence.guard';
 import { CommentOwnershipGuard } from '../../common/guards/comment.ownership.guard';
+import { PublicBlogController } from './blogs/api/public.blog.controller';
+import { AdminBlogController } from './blogs/api/admin.blog.controller';
 
 const blogProviders: Provider[] = [
   BlogService,
@@ -57,7 +58,12 @@ const commentProviders: Provider[] = [
     AuthModule,
     UserModule,
   ],
-  controllers: [BlogController, PostController, CommentController],
+  controllers: [
+    PublicBlogController,
+    AdminBlogController,
+    PostController,
+    CommentController,
+  ],
   providers: [
     ...blogProviders,
     ...postProviders,
