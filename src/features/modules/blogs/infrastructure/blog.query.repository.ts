@@ -1,6 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable } from '@nestjs/common';
 import {
   BlogMapper,
   BlogOutputDto,
@@ -43,15 +41,24 @@ export class BlogQueryRepository {
     const totalCount = parseInt(totalCountResult[0].count, 10);
     const pageCount = Math.ceil(totalCount / query.pageSize);
     // Подготовка сортировки, пропуска и лимита
-    const sortCondition = `"${query.sortBy}" ${query.sortDirection}`;
+    const sortColumn =
+      query.sortBy === 'createdAt' ? 'createdAtBlog' : query.sortBy; // Используем createdAtBlog, если sortBy равно 'createdAt'
+    const sortCondition = `"${sortColumn}" ${query.sortDirection}`;
     const offset = (query.pageNumber - 1) * query.pageSize;
     const limit = query.pageSize;
     try {
       // Получение записей с учетом поиска, сортировки, пропуска и лимита
-      const items = await this.dataSource.query(
-        `SELECT * FROM "Blogs" ${searchCondition} ORDER BY ${sortCondition} OFFSET $2 LIMIT $3`,
-        searchCondition ? [...searchParams, offset, limit] : [offset, limit],
-      );
+      const itemsQuery = `
+      SELECT * FROM "Blogs" 
+      ${searchCondition} 
+      ORDER BY ${sortCondition} 
+      OFFSET $${searchCondition ? 2 : 1} 
+      LIMIT $${searchCondition ? 3 : 2}`;
+      const itemsParams = searchCondition
+        ? [...searchParams, offset, limit]
+        : [offset, limit];
+
+      const items = await this.dataSource.query(itemsQuery, itemsParams);
       return {
         pagesCount: pageCount,
         page: query.pageNumber,
@@ -60,8 +67,8 @@ export class BlogQueryRepository {
         items: items.map(BlogMapper.toView),
       };
     } catch (e) {
-      console.log(e);
-      throw new Error(e);
+      console.error('Error in getBlogsWithPaging:', e.message);
+      throw new Error('Failed to fetch blogs with paging');
     }
   }
   /*constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}

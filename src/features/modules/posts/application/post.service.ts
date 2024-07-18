@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PostRepository } from '../infrastructure/post.repository';
-import { PostCreateDto } from '../api/models/input/post.input.model';
-import { Post } from '../domain/post.entity';
+import {
+  BlogPostCreateDto,
+  PostCreateDto,
+} from '../api/models/input/post.input.model';
+//import { Post } from '../domain/post.entity';
 import { BlogRepository } from '../../blogs/infrastructure/blog.repository';
 import { LikeStatus } from '../../../likes/api/models/likes.info.model';
 import { PostLikes } from '../../../likes/domain/like.entity';
+import { Post } from '../domain/post.sql.entity';
 
 @Injectable()
 export class PostService {
@@ -49,13 +53,14 @@ export class PostService {
     });
     await this.postRepository.updatePostLike(updatePostLike);
   }
-  async updatePostById(postId: string, postDto: PostCreateDto) {
+  async updatePostById(postId: string, postDto: BlogPostCreateDto) {
     const existingPost = await this.postRepository.find(postId);
     if (!existingPost) {
       throw new NotFoundException('Post not found in database');
     }
-    existingPost.updatePost(postDto);
-    await existingPost.save();
+    //existingPost.updatePost(postDto);
+    await this.postRepository.updatePostById(postId, postDto);
+    //await existingPost.save();
   }
   async deletePostById(postId: string) {
     return await this.postRepository.deletePostById(postId);

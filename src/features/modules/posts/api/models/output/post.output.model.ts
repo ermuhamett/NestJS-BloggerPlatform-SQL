@@ -4,6 +4,7 @@ import {
   NewestLike,
 } from '../../../../../likes/api/models/likes.info.model';
 import { PostLikesDocument } from '../../../../../likes/domain/like.entity';
+import { Post } from '../../../domain/post.sql.entity';
 
 export class PostOutputDto {
   constructor(
@@ -19,18 +20,16 @@ export class PostOutputDto {
 }
 
 export class PostMapper {
-  public static toView(
-    post: PostDocument,
-    likes: ExtendedLikesInfo,
-  ): PostOutputDto {
+  public static toView(post: Post, likes: ExtendedLikesInfo): PostOutputDto {
+    console.log('Post data before mapping: ', post);
     return {
-      id: post._id.toString(),
+      id: post.postId,
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
-      blogId: post.blogId,
-      blogName: post.blogName,
-      createdAt: post.createdAt, // Добавляем createdAt,
+      blogId: post.blogIdFk,
+      blogName: post.name,
+      createdAt: post.createdAtPost, // Добавляем createdAt,
       extendedLikesInfo: likes,
     };
   }

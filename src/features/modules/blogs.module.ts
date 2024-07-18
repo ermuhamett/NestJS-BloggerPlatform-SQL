@@ -15,7 +15,6 @@ import {
   PostLikesSchema,
 } from '../likes/domain/like.entity';
 import { Comment, CommentSchema } from './comments/domain/comment.entity';
-import { PostController } from './posts/api/post.controller';
 import { CommentQueryRepository } from './comments/infrastructure/comment.query.repository';
 import { CommentController } from './comments/api/comment.controller';
 import { BasicStrategy } from '../../common/strategies/basic.strategy';
@@ -29,6 +28,8 @@ import { CommentExistenceGuard } from '../../common/guards/comment.existence.gua
 import { CommentOwnershipGuard } from '../../common/guards/comment.ownership.guard';
 import { PublicBlogController } from './blogs/api/public.blog.controller';
 import { AdminBlogController } from './blogs/api/admin.blog.controller';
+import { PublicPostController } from './posts/api/public.post.controller';
+import { AdminPostController } from './posts/api/admin.post.controller';
 
 const blogProviders: Provider[] = [
   BlogService,
@@ -61,7 +62,8 @@ const commentProviders: Provider[] = [
   controllers: [
     PublicBlogController,
     AdminBlogController,
-    PostController,
+    PublicPostController,
+    AdminPostController,
     CommentController,
   ],
   providers: [

@@ -7,7 +7,8 @@ export class Post {
   content: string;
   blogIdFk: string; //FK
   blogName: string;
-  createdAt: string;
+  createdAtPost: string;
+  name: string;
 
   constructor(data: PostCreateDto, blogName: string) {
     this.title = data.title;
@@ -15,7 +16,7 @@ export class Post {
     this.content = data.content;
     this.blogIdFk = data.blogId;
     this.blogName = blogName;
-    this.createdAt = new Date().toISOString();
+    this.createdAtPost = new Date().toISOString();
   }
   // Метод для обновления данных поста
   updatePost(updatedData: Partial<PostCreateDto>) {

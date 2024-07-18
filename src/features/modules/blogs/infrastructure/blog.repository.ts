@@ -85,7 +85,6 @@ export class BlogRepository {
     }
   }
   async find(blogId: string): Promise<Blog> {
-    //TODO вот find надо первым тестировать возможно не придется маппить в toDomain
     const result = await this.dataSource.query(
       `SELECT * FROM "Blogs" WHERE "blogId" = $1`,
       [blogId],
