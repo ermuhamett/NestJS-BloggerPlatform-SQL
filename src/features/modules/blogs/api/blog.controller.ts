@@ -29,7 +29,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { OptionalAuthGuard } from '../../../../common/guards/optional.auth.guard';
 
 @ApiTags('Blogs')
-@Controller('blogs')
+@Controller('sa/blogs')
 export class BlogController {
   constructor(
     private blogService: BlogService,
@@ -46,6 +46,7 @@ export class BlogController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createBlog(@Body() blogDto: BlogCreateDto) {
+    console.log('In controller');
     const blogId = await this.blogService.createBlog(blogDto);
     return await this.blogQueryRepository.getBlogById(blogId.toString());
     //work
@@ -84,6 +85,7 @@ export class BlogController {
     @Body() blogDto: BlogCreateDto,
   ) {
     const blog = await this.blogRepository.find(id);
+    console.log('Blog inside put controller: ', blog);
     if (!blog) {
       throw new HttpException('Blog not found', HttpStatus.NOT_FOUND);
     }
@@ -93,21 +95,23 @@ export class BlogController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getBlogById(@Param('id') id: string) {
+    console.log('Param id inside request: ', id);
     const blog = await this.blogRepository.find(id);
+    console.log('Blog in getMethod: ', blog);
     if (!blog) {
       throw new HttpException('Blog not found', HttpStatus.NOT_FOUND);
     }
-    return await this.blogQueryRepository.getBlogById(blog.id.toString());
+    return await this.blogQueryRepository.getBlogById(blog.blogId.toString());
     //work
   }
 
-  @Get()
+  /*@Get()
   @HttpCode(HttpStatus.OK)
   async getBlogsWithPaging(@Query() query: QueryInputType) {
     const sanitizedQuery = new QueryParams(query).sanitize();
     return await this.blogQueryRepository.getBlogsWithPaging(sanitizedQuery);
     //work
-  }
+  }*/
 
   @UseGuards(OptionalAuthGuard)
   @Get(':blogId/posts')

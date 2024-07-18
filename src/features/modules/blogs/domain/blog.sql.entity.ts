@@ -3,14 +3,14 @@ export class Blog {
   name: string;
   description: string;
   websiteUrl: string;
-  createdAt: string;
+  createdAtBlog: string;
   isMembership: boolean;
 
   constructor(data: Partial<Blog>) {
     this.name = data.name;
     this.description = data.description;
     this.websiteUrl = data.websiteUrl;
-    this.createdAt = new Date().toISOString();
+    this.createdAtBlog = new Date().toISOString();
     this.isMembership = false;
   }
 

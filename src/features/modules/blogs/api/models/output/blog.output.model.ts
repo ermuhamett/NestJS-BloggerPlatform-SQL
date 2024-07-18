@@ -1,4 +1,5 @@
 import { BlogDocument } from '../../../domain/blog.entity';
+import { Blog } from '../../../domain/blog.sql.entity';
 
 export class BlogOutputDto {
   constructor(
@@ -12,13 +13,13 @@ export class BlogOutputDto {
 }
 
 export class BlogMapper {
-  public static toView(blog: BlogDocument): BlogOutputDto {
+  public static toView(blog: Blog): BlogOutputDto {
     return {
-      id: blog.id,
+      id: blog.blogId,
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,
-      createdAt: blog.createdAt,
+      createdAt: blog.createdAtBlog,
       isMembership: blog.isMembership,
     };
   }

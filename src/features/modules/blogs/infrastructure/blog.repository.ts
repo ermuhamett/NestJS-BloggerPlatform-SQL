@@ -5,6 +5,7 @@ import { BlogCreateDto } from '../api/models/input/blog.input.model';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Blog } from '../domain/blog.sql.entity';
+import { log } from 'console';
 
 @Injectable()
 export class BlogRepository {
@@ -13,23 +14,25 @@ export class BlogRepository {
   async insertBlog(blog: Partial<Blog>) {
     const queryRunner = this.dataSource.createQueryRunner(); //создаем экземпляр запроса
     await queryRunner.startTransaction(); //начинаем транзакцию
-
+    console.log('Blog object inside repository: ', blog);
     try {
       const blogResult = await queryRunner.query(
         `
           INSERT INTO "Blogs" 
-          ("name", "description", "websiteUrl", "createdAt", "isMembership")
-          VALUES ($1, $2, $3, $4, $5, $6)
+          ("name", "description", "websiteUrl", "createdAtBlog", "isMembership")
+          VALUES ($1, $2, $3, $4, $5)
           RETURNING "blogId"
         `,
         [
           blog.name,
           blog.description,
           blog.websiteUrl,
-          blog.createdAt,
+          blog.createdAtBlog,
           blog.isMembership,
         ],
       );
+      await queryRunner.commitTransaction();
+      console.log('Blog result inside blog repository: ', blogResult[0]); // Возвращает чисто id блога
       blog.blogId = blogResult[0].blogId;
       return blog.blogId;
     } catch (error) {

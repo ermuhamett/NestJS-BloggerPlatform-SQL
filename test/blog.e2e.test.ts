@@ -17,6 +17,7 @@ describe('Blog entity test', () => {
       await initSettings();
     app = initializedApp;
     httpServer = initializedHttpServer;
+    blogTestManager = new BlogTestManager(app);
     const response = await request(httpServer).delete('/api/testing/all-data');
     console.log(response.status);
   });

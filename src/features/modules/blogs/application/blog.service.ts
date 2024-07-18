@@ -24,9 +24,9 @@ export class BlogService {
   }
 
   async updateBlogById(blogId: string, blogDto: BlogCreateDto) {
-    const existingBlog = await this.blogRepository.find(blogId);
-    existingBlog.updateBlog(blogDto);
-    await this.blogRepository.updateBlogById(existingBlog.blogId, blogDto);
+    //const existingBlog = await this.blogRepository.find(blogId);
+    //existingBlog.updateBlog(blogDto);
+    await this.blogRepository.updateBlogById(blogId, blogDto);
     //await existingBlog.save();
     //return await this.blogRepository.updateBlogById(blogId, blogDto)
   }

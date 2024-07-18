@@ -7,19 +7,30 @@ import {
 } from '../api/models/output/blog.output.model';
 import { Blog, BlogDocument } from '../domain/blog.entity';
 import { QueryOutputType } from '../../../../base/adapters/query/query.class';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class BlogQueryRepository {
-  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  /*async find(id:string): Promise<BlogOutputDto | Boolean>{
-        try {
-            return await this.blogModel.findById(id, {__v: false})
-        }
-        catch (e) {
-            return false
-        }
-    }*/
+  async getBlogById(blogId: string): Promise<BlogOutputDto> {
+    const blog = await this.dataSource.query(
+      `
+      SELECT *
+      FROM "Blogs"
+      WHERE "blogId" = $1
+    `,
+      [blogId],
+    );
+    if (blog.length === 0) {
+      return null;
+    }
+    console.log('Blog data in getBlogById: ', blog[0]);
+    return BlogMapper.toView(blog[0]);
+  }
+  /*constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+
   async getBlogById(blogId: string): Promise<BlogOutputDto | boolean> {
     const blog = await this.blogModel.findOne({ _id: blogId });
     if (!blog) {
@@ -50,5 +61,5 @@ export class BlogQueryRepository {
       console.log(e);
       throw new Error(e);
     }
-  }
+  }*/
 }
