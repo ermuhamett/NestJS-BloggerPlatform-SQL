@@ -26,6 +26,7 @@ import { PostCreateDto } from './models/input/post.input.model';
 @ApiTags('Admin Posts')
 @Controller('sa/posts')
 export class AdminPostController {
+  //TODO Надо по сваггеру проверить роуты
   constructor(
     private postService: PostService,
     private commentService: CommentService,

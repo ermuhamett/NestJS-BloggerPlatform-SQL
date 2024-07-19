@@ -66,7 +66,7 @@ export class PublicBlogController {
     return await this.postQueryRepository.getPostsWithPaging(
       sanitizedQuery,
       blogId,
-      req.userId.toString(),
+      req.userId,
     );
   }
 }

@@ -3,12 +3,15 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
   Param,
   Post,
   Put,
+  Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { BlogService } from '../application/blog.service';
@@ -19,6 +22,12 @@ import { PostQueryRepository } from '../../posts/infrastructure/post.query.repos
 import { AuthGuard } from '@nestjs/passport';
 import { BlogCreateDto } from './models/input/blog.input.model';
 import { BlogPostCreateDto } from '../../posts/api/models/input/post.input.model';
+import {
+  QueryInputType,
+  QueryParams,
+} from '../../../../base/adapters/query/query.class';
+import { OptionalAuthGuard } from '../../../../common/guards/optional.auth.guard';
+import { PostRepository } from '../../posts/infrastructure/post.repository';
 
 @ApiTags('Admin Blogs')
 @Controller('sa/blogs')
@@ -29,15 +38,14 @@ export class AdminBlogController {
     private blogQueryRepository: BlogQueryRepository,
     private postService: PostService,
     private postQueryRepository: PostQueryRepository,
+    private postRepository: PostRepository,
   ) {}
   @UseGuards(AuthGuard('basic'))
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createBlog(@Body() blogDto: BlogCreateDto) {
-    console.log('In controller');
     const blogId = await this.blogService.createBlog(blogDto);
     return await this.blogQueryRepository.getBlogById(blogId.toString());
-    //work
   }
   @UseGuards(AuthGuard('basic'))
   @Post(':blogId/posts')
@@ -88,5 +96,51 @@ export class AdminBlogController {
     await this.blogService.deleteBlogById(id);
     //Тут вроде как возвращает false что неправильно наверное
     //work
+  }
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getBlogsWithPaging(@Query() query: QueryInputType) {
+    const sanitizedQuery = new QueryParams(query).sanitize();
+    return await this.blogQueryRepository.getBlogsWithPaging(sanitizedQuery);
+    //work
+  }
+  @UseGuards(OptionalAuthGuard)
+  @Get(':blogId/posts')
+  async getPostsForBlog(
+    @Request() req,
+    @Param('blogId') blogId: string,
+    @Query() query: QueryInputType,
+  ) {
+    const blog = await this.blogRepository.find(blogId);
+    if (!blog) {
+      throw new HttpException('Blog not found', HttpStatus.NOT_FOUND);
+    }
+    const sanitizedQuery = new QueryParams(query).sanitize();
+    return await this.postQueryRepository.getPostsWithPaging(
+      sanitizedQuery,
+      blogId,
+      req.userId,
+    );
+  }
+  ///hometask_18/api/sa/blogs/{blogId}/posts/{postId} PUT
+  @UseGuards(AuthGuard('basic'))
+  @Put(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePostById(
+    @Param('postId') postId: string,
+    @Body() postDto: BlogPostCreateDto,
+  ) {
+    return this.postService.updatePostById(postId, postDto);
+  }
+  ///hometask_18/api/sa/blogs/{blogId}/posts/{postId} DELETE post by id
+  @UseGuards(AuthGuard('basic'))
+  @Delete(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePostById(@Param('postId') postId: string) {
+    const post = await this.postRepository.find(postId);
+    if (!post) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    await this.postService.deletePostById(postId);
   }
 }

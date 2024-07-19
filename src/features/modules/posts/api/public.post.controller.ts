@@ -25,6 +25,7 @@ import {
 @ApiTags('Public Posts')
 @Controller('posts')
 export class PublicPostController {
+  //TODO надо по сваггеру проверить роуты
   constructor(
     private postRepository: PostRepository,
     private postQueryRepository: PostQueryRepository,
