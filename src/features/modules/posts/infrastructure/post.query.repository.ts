@@ -26,7 +26,7 @@ export class PostQueryRepository {
         `,
       [postId],
     );
-    console.log('Post in getBlogById: ', post[0]);
+    //console.log('Post in getBlogById: ', post[0]);
     if (post.length === 0) {
       return null;
     }
@@ -102,7 +102,7 @@ export class PostQueryRepository {
   ) {
     try {
       // Подготовка условий поиска по blogId
-      const byIdCondition = blogId ? `WHERE "blogId" = $1` : '';
+      const byIdCondition = blogId ? `WHERE "blogIdFk" = $1` : '';
       // Подсчет общего количества записей
       const totalCountQuery = `
             SELECT COUNT(*) AS "totalCount"
@@ -119,13 +119,17 @@ export class PostQueryRepository {
       // Определение правильного столбца сортировки
       const sortColumn =
         query.sortBy === 'createdAt' ? 'createdAtPost' : query.sortBy;
-      const sortCondition = `"${sortColumn}" ${query.sortDirection}`;
+      const sortCondition =
+        sortColumn === 'blogName'
+          ? `b."name" ${query.sortDirection}`
+          : `p."${sortColumn}" ${query.sortDirection}`;
       const offset = (query.pageNumber - 1) * query.pageSize;
       const limit = query.pageSize;
       // Получение записей с учетом поиска, сортировки, пропуска и лимита
       const selectQuery = `
-            SELECT *
-            FROM "Posts" 
+            SELECT p.*, b.name
+            FROM "Posts" p
+            LEFT JOIN "Blogs" b ON p."blogIdFk" = b."blogId" 
             ${byIdCondition}
             ORDER BY ${sortCondition}
             OFFSET $${byIdCondition ? 2 : 1}

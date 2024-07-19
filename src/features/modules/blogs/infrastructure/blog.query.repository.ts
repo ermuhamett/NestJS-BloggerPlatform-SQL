@@ -23,7 +23,7 @@ export class BlogQueryRepository {
     if (blog.length === 0) {
       return null;
     }
-    console.log('Blog data in getBlogById: ', blog[0]);
+    //console.log('Blog data in getBlogById: ', blog[0]);
     return BlogMapper.toView(blog[0]);
   }
   async getBlogsWithPaging(query: QueryOutputType) {

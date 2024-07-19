@@ -40,14 +40,22 @@ export class AdminBlogController {
     private postQueryRepository: PostQueryRepository,
     private postRepository: PostRepository,
   ) {}
-  @UseGuards(AuthGuard('basic'))
+  @UseGuards(AuthGuard('basic')) //hometask_18/api/sa/blogs
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getBlogsWithPagingBySa(@Query() query: QueryInputType) {
+    const sanitizedQuery = new QueryParams(query).sanitize();
+    return await this.blogQueryRepository.getBlogsWithPaging(sanitizedQuery);
+    //work
+  }
+  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs post
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createBlog(@Body() blogDto: BlogCreateDto) {
     const blogId = await this.blogService.createBlog(blogDto);
     return await this.blogQueryRepository.getBlogById(blogId.toString());
   }
-  @UseGuards(AuthGuard('basic'))
+  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{blogId}/posts  post
   @Post(':blogId/posts')
   @HttpCode(HttpStatus.CREATED)
   async createPostForBlog(
@@ -71,7 +79,7 @@ export class AdminBlogController {
     return await this.postQueryRepository.getPostById(createdPostId.toString());
     //work
   }
-  @UseGuards(AuthGuard('basic'))
+  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{id} put
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlogById(
@@ -85,7 +93,7 @@ export class AdminBlogController {
     }
     await this.blogService.updateBlogById(id, blogDto);
   }
-  @UseGuards(AuthGuard('basic'))
+  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{id} delete
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlogById(@Param('id') id: string) {
@@ -97,14 +105,8 @@ export class AdminBlogController {
     //Тут вроде как возвращает false что неправильно наверное
     //work
   }
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  async getBlogsWithPaging(@Query() query: QueryInputType) {
-    const sanitizedQuery = new QueryParams(query).sanitize();
-    return await this.blogQueryRepository.getBlogsWithPaging(sanitizedQuery);
-    //work
-  }
-  @UseGuards(OptionalAuthGuard)
+
+  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{blogId}/posts GET
   @Get(':blogId/posts')
   async getPostsForBlog(
     @Request() req,
@@ -122,6 +124,7 @@ export class AdminBlogController {
       req.userId,
     );
   }
+
   ///hometask_18/api/sa/blogs/{blogId}/posts/{postId} PUT
   @UseGuards(AuthGuard('basic'))
   @Put(':blogId/posts/:postId')

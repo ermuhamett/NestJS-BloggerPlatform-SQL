@@ -16,7 +16,7 @@ export class PostRepository {
   async insertPost(post: Post) {
     const queryRunner = this.dataSource.createQueryRunner(); //создаем экземпляр запроса
     await queryRunner.startTransaction(); //начинаем транзакцию
-    console.log('Post object inside repository: ', post);
+    //console.log('Post object inside repository: ', post);
     try {
       const postResult = await queryRunner.query(
         `
@@ -34,7 +34,7 @@ export class PostRepository {
         ],
       );
       await queryRunner.commitTransaction();
-      console.log('Blog result inside blog repository: ', postResult[0]); // Возвращает id поста
+      //console.log('Post result inside blog repository: ', postResult[0]); // Возвращает id поста
       post.postId = postResult[0].postId;
       return post.postId;
     } catch (error) {
@@ -59,7 +59,7 @@ export class PostRepository {
     if (result.length === 0) {
       return null; // Возвращаем null, если пользователь не найден
     }
-    console.log('Post result in find method: ', result[0]);
+    //console.log('Post result in find method: ', result[0]);
     return result.length ? result[0] : null;
   }
 

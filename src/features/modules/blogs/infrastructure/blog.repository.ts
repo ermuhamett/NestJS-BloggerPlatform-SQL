@@ -14,7 +14,7 @@ export class BlogRepository {
   async insertBlog(blog: Partial<Blog>) {
     const queryRunner = this.dataSource.createQueryRunner(); //создаем экземпляр запроса
     await queryRunner.startTransaction(); //начинаем транзакцию
-    console.log('Blog object inside repository: ', blog);
+    //console.log('Blog object inside repository: ', blog);
     try {
       const blogResult = await queryRunner.query(
         `
@@ -32,7 +32,7 @@ export class BlogRepository {
         ],
       );
       await queryRunner.commitTransaction();
-      console.log('Blog result inside blog repository: ', blogResult[0]); // Возвращает чисто id блога
+      //console.log('Blog result inside blog repository: ', blogResult[0]); // Возвращает чисто id блога
       blog.blogId = blogResult[0].blogId;
       return blog.blogId;
     } catch (error) {
