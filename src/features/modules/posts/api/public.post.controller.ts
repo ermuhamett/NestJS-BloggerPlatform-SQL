@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
+  NotFoundException,
   Param,
   Query,
   Request,
@@ -68,6 +69,10 @@ export class PublicPostController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getPostById(@Param('id') id: string, @Request() req) {
-    return await this.postQueryRepository.getPostById(id, req.userId);
+    const post = await this.postQueryRepository.getPostById(id, req.userId);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
   }
 }
