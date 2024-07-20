@@ -35,7 +35,7 @@ export class AdminPostController {
     private commentQueryRepository: CommentQueryRepository,
     private userRepository: UserRepositorySql,
   ) {}
-  @UseGuards(AuthGuard('jwt'))
+  /*@UseGuards(AuthGuard('jwt'))
   @Put(':postId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePostLikeStatus(
@@ -54,8 +54,8 @@ export class AdminPostController {
       user.userId.toString(), //Обновлено
       user.login,
     );
-  }
-  @UseGuards(AuthGuard('jwt'))
+  }*/
+  /*@UseGuards(AuthGuard('jwt'))
   @Post(':postId/comments')
   @HttpCode(HttpStatus.CREATED)
   async createCommentByPost(
@@ -77,7 +77,7 @@ export class AdminPostController {
       newCommentId,
       user.userId.toString(),
     );
-  }
+  }*/
   @UseGuards(AuthGuard('basic'))
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -91,7 +91,7 @@ export class AdminPostController {
     }
     return await this.postQueryRepository.getPostById(postId.toString());
   }
-  @UseGuards(AuthGuard('basic'))
+  /*@UseGuards(AuthGuard('basic'))
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePostById(
@@ -100,8 +100,8 @@ export class AdminPostController {
   ) {
     return this.postService.updatePostById(id, postDto);
     //Можно в контроллере не писать HttpException так как сервис может кинуть NotFound и контроллер автоматический обработает его
-  }
-  @UseGuards(AuthGuard('basic'))
+  }*/
+  /*@UseGuards(AuthGuard('basic'))
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePostById(@Param('id') id: string) {
@@ -110,5 +110,5 @@ export class AdminPostController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     await this.postService.deletePostById(id);
-  }
+  }*/
 }

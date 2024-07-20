@@ -33,7 +33,7 @@ export class PublicPostController {
     private commentQueryRepository: CommentQueryRepository,
   ) {}
 
-  @UseGuards(OptionalAuthGuard)
+  /*@UseGuards(OptionalAuthGuard)
   @Get(':postId/comments')
   @HttpCode(HttpStatus.OK)
   async getCommentsForPost(
@@ -51,7 +51,7 @@ export class PublicPostController {
       postId,
       req.userId,
     );
-  }
+  }*/
   @UseGuards(OptionalAuthGuard)
   @Get()
   @HttpCode(HttpStatus.OK)

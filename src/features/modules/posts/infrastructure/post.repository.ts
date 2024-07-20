@@ -45,22 +45,22 @@ export class PostRepository {
       await queryRunner.release();
     }
   }
-
-  async find(postId: string) {
+  //TODO Возможно в будущем придется два find писать. Один будет работать по blogId и postId а другой по postId только
+  async find(postId: string, blogId: string) {
     const result = await this.dataSource.query(
       `
           SELECT p.*, b.name
           FROM "Posts" p
           LEFT JOIN "Blogs" b ON p."blogIdFk" = b."blogId"
-          WHERE p."postId" = $1
+          WHERE p."postId" = $1 AND p."blogIdFk" = $2
         `,
-      [postId],
+      [postId, blogId],
     );
     if (result.length === 0) {
       return null; // Возвращаем null, если пользователь не найден
     }
     //console.log('Post result in find method: ', result[0]);
-    return result.length ? result[0] : null;
+    return result[0];
   }
 
   async deletePostById(postId: string) {

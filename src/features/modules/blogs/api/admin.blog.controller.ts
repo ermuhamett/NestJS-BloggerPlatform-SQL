@@ -130,17 +130,21 @@ export class AdminBlogController {
   @Put(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePostById(
+    @Param('blogId') blogId: string,
     @Param('postId') postId: string,
     @Body() postDto: BlogPostCreateDto,
   ) {
-    return this.postService.updatePostById(postId, postDto);
+    return this.postService.updatePostById(postId, postDto, blogId);
   }
   ///hometask_18/api/sa/blogs/{blogId}/posts/{postId} DELETE post by id
   @UseGuards(AuthGuard('basic'))
   @Delete(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePostById(@Param('postId') postId: string) {
-    const post = await this.postRepository.find(postId);
+  async deletePostById(
+    @Param('blogId') blogId: string,
+    @Param('postId') postId: string,
+  ) {
+    const post = await this.postRepository.find(postId, blogId);
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }

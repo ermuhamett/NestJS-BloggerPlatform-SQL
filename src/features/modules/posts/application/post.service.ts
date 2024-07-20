@@ -53,8 +53,12 @@ export class PostService {
     });
     await this.postRepository.updatePostLike(updatePostLike);
   }
-  async updatePostById(postId: string, postDto: BlogPostCreateDto) {
-    const existingPost = await this.postRepository.find(postId);
+  async updatePostById(
+    postId: string,
+    postDto: BlogPostCreateDto,
+    blogId: string,
+  ) {
+    const existingPost = await this.postRepository.find(postId, blogId);
     if (!existingPost) {
       throw new NotFoundException('Post not found in database');
     }
