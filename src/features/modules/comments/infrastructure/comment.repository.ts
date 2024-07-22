@@ -6,10 +6,13 @@ import {
   CommentLikes,
   CommentLikesDocument,
 } from '../../../likes/domain/like.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class CommentRepository {
-  constructor(
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  /*constructor(
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
     @InjectModel(CommentLikes.name)
     private commentLikesModel: Model<CommentLikesDocument>,
@@ -50,5 +53,5 @@ export class CommentRepository {
     } catch (error) {
       throw new Error(`Failed to delete blog with error ${error}`);
     }
-  }
+  }*/
 }

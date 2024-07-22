@@ -28,7 +28,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: false,
       synchronize: false,
     }),
-    MongooseModule.forRoot(appSettings.api.MONGO_CONNECTION_URI),
+    //MongooseModule.forRoot(appSettings.api.MONGO_CONNECTION_URI),
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([
       {

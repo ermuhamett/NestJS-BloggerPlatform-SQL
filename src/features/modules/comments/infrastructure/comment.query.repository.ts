@@ -12,10 +12,13 @@ import {
   LikeStatus,
 } from '../../../likes/api/models/likes.info.model';
 import { QueryOutputType } from '../../../../base/adapters/query/query.class';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class CommentQueryRepository {
-  constructor(
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  /*constructor(
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
     @InjectModel(CommentLikes.name)
     private commentLikesModel: Model<CommentLikesDocument>,
@@ -106,5 +109,5 @@ export class CommentQueryRepository {
       console.log({ get_comments_repo: e });
       return false;
     }
-  }
+  }*/
 }

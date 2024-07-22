@@ -15,16 +15,14 @@ export class CommentService {
 
   async createComment(
     content: string,
-    commentatorInfo: { id: string; login: string },
+    userId: string,
+    //commentatorInfo: { id: string; login: string },
     postId: string,
   ) {
     const dto = {
       content,
-      commentatorInfo: {
-        userId: commentatorInfo.id,
-        userLogin: commentatorInfo.login,
-      },
-      postId,
+      userIdFk: userId,
+      postIdFk: postId,
     };
     const newComment = new Comment(dto);
     return await this.commentRepository.createComment(newComment);
@@ -32,7 +30,7 @@ export class CommentService {
   async updateCommentById(commentId: string, commentDto: CommentCreateDto) {
     const existingComment = await this.commentRepository.find(commentId);
     if (!existingComment) {
-      throw new NotFoundException('Post not found in database');
+      throw new NotFoundException('Comments not found in database');
     }
     existingComment.updateComment(commentDto);
     await existingComment.save();
