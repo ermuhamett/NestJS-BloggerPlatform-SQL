@@ -14,3 +14,16 @@ export class PostLikes {
     this.status = dto.status;
   }
 }
+
+export class CommentLikes {
+  authorId: string;
+  parentId: string;
+  status: string;
+  createdAt: string;
+  constructor(data: CommentLikes) {
+    this.authorId = data.authorId;
+    this.parentId = data.parentId;
+    this.status = data.status;
+    this.createdAt = new Date().toISOString();
+  }
+}
