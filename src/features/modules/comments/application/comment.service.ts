@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CommentRepository } from '../infrastructure/comment.repository';
-import { Comment } from '../domain/comment.entity';
+//import { Comment } from '../domain/comment.entity';
 import {
   CommentLikeDb,
   LikeInputDto,
@@ -8,6 +8,7 @@ import {
 } from '../../../likes/api/models/likes.info.model';
 import { CommentLikes } from '../../../likes/domain/like.entity';
 import { CommentCreateDto } from '../api/models/input/comment.input.model';
+import { Comment } from '../domain/comment.sql.entity';
 
 @Injectable()
 export class CommentService {
