@@ -4,6 +4,7 @@ export class Comment {
   content: string;
   userIdFk: string; //FK
   createdAt: string;
+  login: string; //Появится после запроса из базы данных
 
   constructor(dto: Partial<Comment>) {
     this.postIdFk = dto.postIdFk;

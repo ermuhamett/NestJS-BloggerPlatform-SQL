@@ -6,10 +6,10 @@ export class PostLikes {
   likedUserLogin: string;
   addedAt: string;
   status: string;
-  constructor(dto: PostLikeDto) {
+  constructor(dto: Partial<PostLikes>) {
     this.postId = dto.postId;
-    this.likedUserId = dto.userId;
-    this.likedUserLogin = dto.userLogin;
+    this.likedUserId = dto.likedUserId;
+    this.likedUserLogin = dto.likedUserLogin;
     this.addedAt = new Date().toISOString();
     this.status = dto.status;
   }

@@ -20,7 +20,7 @@ export class CommentQueryRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
   async getCommentById(commentId: string, userId: string) {
     const commentQuery = `
-      SELECT c."commentId", c."postIdFk" AS "postId", c."content", c."userIdFk" AS "userId", c."createdAt",
+      SELECT c."commentId", c."postIdFk", c."content", c."userIdFk", c."createdAt",
              u."login"
       FROM "Comments" c
       JOIN "Users" u ON c."userIdFk" = u."userId"
@@ -34,6 +34,7 @@ export class CommentQueryRepository {
       return null;
     }
     const comment = commentResult[0];
+    //console.log('Comment object inside comment query repository: ', comment);
     const likes: LikesInfo = await this.getCommentLikes(commentId, userId);
 
     return CommentMapper.toView(comment, likes);
@@ -64,12 +65,12 @@ export class CommentQueryRepository {
       const likesCountQuery = `
         SELECT COUNT(*) as count
         FROM "CommentLikes"
-        WHERE "parentId" = $1 AND "status" = 'LIKE';
+        WHERE "parentId" = $1 AND "status" = 'Like'
       `;
       const dislikesCountQuery = `
         SELECT COUNT(*) as count
         FROM "CommentLikes"
-        WHERE "parentId" = $1 AND "status" = 'DISLIKE';
+        WHERE "parentId" = $1 AND "status" = 'Dislike'
       `;
       // Выполнение запросов параллельно с использованием Promise.all
       const [likesCountResult, dislikesCountResult] = await Promise.all([
@@ -111,7 +112,7 @@ export class CommentQueryRepository {
       const pageCount = Math.ceil(totalCount / query.pageSize);
       // Шаг 2: Выполнить запрос для получения комментариев с учетом пагинации и сортировки
       const commentsQuery = `
-        SELECT c."commentId", c."postIdFk" AS "postId", c."content", c."userIdFk" AS "userId", c."createdAt",
+        SELECT c."commentId", c."postIdFk", c."content", c."userIdFk", c."createdAt",
                u."login"
         FROM "Comments" c
         JOIN "Users" u ON c."userIdFk" = u."userId"

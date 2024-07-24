@@ -24,7 +24,7 @@ export class CommentRepository {
     ];
 
     const result = await this.dataSource.query(query, parameters);
-
+    //console.log('Comment data inside repository after created: ', result[0]);
     return result[0].commentId;
   }
   async find(commentId: string) {

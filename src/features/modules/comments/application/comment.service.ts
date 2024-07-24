@@ -26,6 +26,7 @@ export class CommentService {
       postIdFk: postId,
     };
     const newComment = new Comment(dto);
+    console.log('Comment dto inside service: ', newComment);
     return await this.commentRepository.createComment(newComment);
   }
   async updateCommentById(commentId: string, commentDto: CommentCreateDto) {

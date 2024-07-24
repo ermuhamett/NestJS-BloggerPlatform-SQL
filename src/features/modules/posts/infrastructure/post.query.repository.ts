@@ -60,14 +60,14 @@ export class PostQueryRepository {
                 SELECT COUNT(*) AS "count" FROM "PostLikes"
                 WHERE "postId" = $1 AND "status" = $2
                 `,
-            [postId, 'LIKE'],
+            [postId, 'Like'],
           ),
           queryRunner.query(
             `
                 SELECT COUNT(*) AS "count" FROM "PostLikes"
                 WHERE "postId" = $1 AND "status" = $2
                 `,
-            [postId, 'DISLIKE'],
+            [postId, 'Dislike'],
           ),
           queryRunner.query(
             `
@@ -76,7 +76,7 @@ export class PostQueryRepository {
                 ORDER BY "addedAt" DESC
                 LIMIT 3
                 `,
-            [postId, 'LIKE'],
+            [postId, 'Like'],
           ),
         ]);
       const likesCount = parseInt(likesCountResult[0].count, 10);

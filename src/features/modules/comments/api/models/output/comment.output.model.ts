@@ -1,5 +1,6 @@
 import { LikesInfo } from '../../../../../likes/api/models/likes.info.model';
 import { CommentDocument } from '../../../domain/comment.entity';
+import { Comment } from '../../../domain/comment.sql.entity';
 
 export interface ICommentatorInfo {
   userId: string;
@@ -16,14 +17,14 @@ export class CommentOutputDto {
 }
 
 export class CommentMapper {
-  public static toView(
-    comment: CommentDocument,
-    likes: LikesInfo,
-  ): CommentOutputDto {
+  public static toView(comment: Comment, likes: LikesInfo): CommentOutputDto {
     return {
-      id: comment.id.toString(),
+      id: comment.commentId.toString(),
       content: comment.content,
-      commentatorInfo: comment.commentatorInfo,
+      commentatorInfo: {
+        userId: comment.userIdFk,
+        userLogin: comment.login,
+      },
       createdAt: comment.createdAt,
       likesInfo: likes,
     };
