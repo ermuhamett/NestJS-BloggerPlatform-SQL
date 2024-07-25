@@ -109,42 +109,29 @@ export class PostRepository {
       throw new Error(`Failed to update blog with error: ${error.message}`);
     }
   }
+  //TODO Не создается запись в базе данных, возможно нужно изменить структуры как в комментах
   async updatePostLike(updateModel: PostLikes) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     try {
-      const result = await queryRunner.query(
+      await queryRunner.query(
         `
-            UPDATE "PostLikes"
-            SET "likedUserLogin" = $1, "addedAt" = $2, "status" = $3
-            WHERE "postId" = $4 AND "likedUserId" = $5
-            RETURNING "postId", "likedUserId"
-            `,
+      INSERT INTO "PostLikes" ("postId", "likedUserId", "likedUserLogin", "addedAt", "status")
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT ("postId", "likedUserId")
+      DO UPDATE SET
+        "likedUserLogin" = EXCLUDED."likedUserLogin",
+        "addedAt" = EXCLUDED."addedAt",
+        "status" = EXCLUDED."status"
+      `,
         [
+          updateModel.postId,
+          updateModel.likedUserId,
           updateModel.likedUserLogin,
           updateModel.addedAt,
           updateModel.status,
-          updateModel.postId,
-          updateModel.likedUserId,
         ],
       );
-
-      if (result.length === 0) {
-        await queryRunner.query(
-          `
-                INSERT INTO "PostLikes" ("postId", "likedUserId", "likedUserLogin", "addedAt", "status")
-                VALUES ($1, $2, $3, $4, $5)
-                `,
-          [
-            updateModel.postId,
-            updateModel.likedUserId,
-            updateModel.likedUserLogin,
-            updateModel.addedAt,
-            updateModel.status,
-          ],
-        );
-      }
-
       await queryRunner.commitTransaction();
       return true; // Возвращаем true, если операция успешна
     } catch (error) {

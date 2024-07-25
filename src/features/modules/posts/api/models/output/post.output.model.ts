@@ -21,7 +21,7 @@ export class PostOutputDto {
 
 export class PostMapper {
   public static toView(post: Post, likes: ExtendedLikesInfo): PostOutputDto {
-    console.log('Post data before mapping: ', post);
+    //console.log('Post data before mapping: ', post);
     return {
       id: post.postId,
       title: post.title,

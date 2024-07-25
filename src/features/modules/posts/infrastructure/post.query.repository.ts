@@ -71,7 +71,7 @@ export class PostQueryRepository {
           ),
           queryRunner.query(
             `
-                SELECT "likedUserLogin", "addedAt" FROM "PostLikes"
+                SELECT "likedUserLogin", "addedAt", "likedUserId" FROM "PostLikes"
                 WHERE "postId" = $1 AND "status" = $2
                 ORDER BY "addedAt" DESC
                 LIMIT 3

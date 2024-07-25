@@ -41,7 +41,7 @@ export class CommentController {
       commentId,
       req.user.userId,
       likeDto,
-    ); //ready not testing
+    );
   }
   @UseGuards(AuthGuard('jwt'), CommentExistenceGuard, CommentOwnershipGuard)
   // Проверка токена должна быть первой
