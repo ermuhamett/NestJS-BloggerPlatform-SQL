@@ -76,6 +76,10 @@ export class CommentController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getCommentById(@Request() req, @Param('id') id: string) {
+    const comment = await this.commentRepository.find(id);
+    if (!comment) {
+      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+    }
     return await this.commentQueryRepository.getCommentById(id, req.userId);
   }
 }
