@@ -29,6 +29,7 @@ export class CommentService {
     console.log('Comment dto inside service: ', newComment);
     return await this.commentRepository.createComment(newComment);
   }
+  //TODO Нужно поставить обновление для коммента, то есть через метод репозиторий
   async updateCommentById(commentId: string, commentDto: CommentCreateDto) {
     const existingComment = await this.commentRepository.find(commentId);
     if (!existingComment) {
