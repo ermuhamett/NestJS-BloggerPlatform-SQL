@@ -35,8 +35,7 @@ export class CommentService {
     if (!existingComment) {
       throw new NotFoundException('Comments not found in database');
     }
-    existingComment.updateComment(commentDto);
-    await existingComment.save();
+    await this.commentRepository.updateCommentById(commentId, commentDto);
   }
   async updateCommentLikeStatus(
     commentId: string,

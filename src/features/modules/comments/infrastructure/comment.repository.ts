@@ -6,6 +6,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Comment } from '../domain/comment.sql.entity';
 import { CommentLikes } from '../../../likes/domain/like.sql.entity';
+import { CommentCreateDto } from '../api/models/input/comment.input.model';
 
 @Injectable()
 export class CommentRepository {
@@ -48,6 +49,23 @@ export class CommentRepository {
     }
     console.log('Comment after find in database: ', result[0]);
     return result[0];
+  }
+  async updateCommentById(commentId: string, updatedDto: CommentCreateDto) {
+    const query = `
+      UPDATE "Comments"
+      SET "content" = $1
+      WHERE "commentId" = $2
+    `;
+    try {
+      const result = await this.dataSource.query(query, [
+        updatedDto.content,
+        commentId,
+      ]);
+      // Assuming that the query returns an array where the first element is the number of affected rows
+      return result[1] > 0;
+    } catch (error) {
+      throw new Error(`Failed to update comment with error: ${error.message}`);
+    }
   }
   async updateLikeStatus(updatedLikeStatusDto: CommentLikes) {
     const query = `
