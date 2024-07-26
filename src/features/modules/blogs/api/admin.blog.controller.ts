@@ -26,7 +26,6 @@ import {
   QueryInputType,
   QueryParams,
 } from '../../../../base/adapters/query/query.class';
-import { OptionalAuthGuard } from '../../../../common/guards/optional.auth.guard';
 import { PostRepository } from '../../posts/infrastructure/post.repository';
 
 @ApiTags('Admin Blogs')
@@ -55,30 +54,6 @@ export class AdminBlogController {
     const blogId = await this.blogService.createBlog(blogDto);
     return await this.blogQueryRepository.getBlogById(blogId.toString());
   }
-  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{blogId}/posts  post
-  @Post(':blogId/posts')
-  @HttpCode(HttpStatus.CREATED)
-  async createPostForBlog(
-    @Param('blogId') blogId: string,
-    @Body() postDto: BlogPostCreateDto,
-  ) {
-    const blog = await this.blogRepository.find(blogId);
-    if (!blog) {
-      throw new HttpException('Blog not found', HttpStatus.NOT_FOUND);
-    }
-    const createdPostId = await this.postService.createPost({
-      ...postDto,
-      blogId,
-    });
-    if (!createdPostId) {
-      throw new HttpException(
-        'Some error when created post',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-    return await this.postQueryRepository.getPostById(createdPostId.toString());
-    //work
-  }
   @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{id} put
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -102,7 +77,29 @@ export class AdminBlogController {
       throw new HttpException('Blog not found', HttpStatus.NOT_FOUND);
     }
     await this.blogService.deleteBlogById(id);
-    //Тут вроде как возвращает false что неправильно наверное
+  }
+  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{blogId}/posts  post
+  @Post(':blogId/posts')
+  @HttpCode(HttpStatus.CREATED)
+  async createPostForBlog(
+    @Param('blogId') blogId: string,
+    @Body() postDto: BlogPostCreateDto,
+  ) {
+    const blog = await this.blogRepository.find(blogId);
+    if (!blog) {
+      throw new HttpException('Blog not found', HttpStatus.NOT_FOUND);
+    }
+    const createdPostId = await this.postService.createPost({
+      ...postDto,
+      blogId,
+    });
+    if (!createdPostId) {
+      throw new HttpException(
+        'Some error when created post',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    return await this.postQueryRepository.getPostById(createdPostId.toString());
     //work
   }
 
