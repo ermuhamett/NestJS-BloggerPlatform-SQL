@@ -64,6 +64,5 @@ export class SecurityController {
     await this.securityService.terminateSessionById(
       deletedAuthSession.deviceId,
     );
-    //await deletedAuthSession.deleteOne();
   }
 }

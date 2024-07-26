@@ -61,7 +61,7 @@ export class PublicPostController {
       req.userId,
     );
   }
-  //TODO Like для поста
+  //Like for the post
   @UseGuards(AuthGuard('jwt'))
   @Put(':postId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -83,7 +83,7 @@ export class PublicPostController {
     );
   }
 
-  //TODO Создания коммента для поста
+  //Create comment for post
   @UseGuards(AuthGuard('jwt'))
   @Post(':postId/comments')
   @HttpCode(HttpStatus.CREATED)
@@ -111,9 +111,7 @@ export class PublicPostController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaging(@Query() query: QueryInputType, @Request() req) {
-    //const user = await this.userRepository.find(req.userId);
     const sanitizedQuery = new QueryParams(query).sanitize();
-    //console.log('UserId in controller: ', req.userId);
     return await this.postQueryRepository.getPostsWithPaging(
       sanitizedQuery,
       '',
