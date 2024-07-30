@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   UserMapper,
   UserOutputDto,
@@ -75,43 +75,4 @@ export class UserQueryRepositorySql {
       return false;
     }
   }
-  /*constructor(@InjectModel(User.name) private userModel: Model<User>) {}
-
-  async getUserById(userId: string): Promise<UserOutputDto> {
-    const user = await this.userModel.findById(userId, { __v: false });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return UserMapper.toView(user);
-  }
-
-  async getUsersWithPaging(query: QueryOutputType) {
-    const searchByLogin = {
-      login: { $regex: query.searchLoginTerm ?? '', $options: 'i' },
-    };
-    const searchByEmail = {
-      email: { $regex: query.searchEmailTerm ?? '', $options: 'i' },
-    };
-    const filter = { $or: [searchByLogin, searchByEmail] };
-    const totalCount = await this.userModel.countDocuments(filter);
-    const pageCount = Math.ceil(totalCount / query.pageSize);
-    try {
-      const users: UserDocument[] = await this.userModel
-        .find(filter)
-        .sort({ [query.sortBy]: query.sortDirection })
-        .skip((query.pageNumber - 1) * query.pageSize)
-        .limit(query.pageSize);
-      return {
-        pagesCount: pageCount,
-        page: query.pageNumber,
-        pageSize: query.pageSize,
-        totalCount: totalCount,
-        items: users.map(UserMapper.toView),
-      };
-    } catch (e) {
-      //Фича можно отловить ошибку то есть где именно падает и тд
-      console.log({ get_users_repo: e });
-      return false;
-    }
-  }*/
 }
