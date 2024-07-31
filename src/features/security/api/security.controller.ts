@@ -51,11 +51,11 @@ export class SecurityController {
   async terminateSessionById(@Req() req, @Param('deviceId') deviceId: string) {
     const deletedAuthSession =
       await this.securityRepository.findSessionByDeviceId(deviceId);
-    //console.log('Deleted Auth Session info: ', deletedAuthSession);
+    console.log('Deleted Auth Session info: ', deletedAuthSession);
     if (!deletedAuthSession) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
-    if (deletedAuthSession.userIdFk !== req.authSession.userIdFk) {
+    if (deletedAuthSession.user !== req.authSession.user) {
       throw new HttpException(
         'Try to delete other session',
         HttpStatus.FORBIDDEN,

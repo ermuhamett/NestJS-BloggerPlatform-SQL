@@ -31,7 +31,7 @@ export class SecurityRepository {
       },
       relations: ['user'], // Убедитесь, что связь с пользователем загружена
     });
-
+    console.log('Session info in find method inside repository: ', session);
     return session || null;
   }
   async findSessionByDeviceId(deviceId: string): Promise<Session | null> {
@@ -68,6 +68,15 @@ export class SecurityRepository {
     } catch (error) {
       console.error('Error deleting session:', error);
       throw new Error('Error deleting session');
+    }
+  }
+  async save(session: Partial<Session>): Promise<void> {
+    try {
+      // Сохраняем изменения в базе данных
+      await this.sessionRepo.save(session);
+    } catch (error) {
+      console.error('Error saving session:', error);
+      throw new Error('Error saving session');
     }
   }
   /*constructor(@InjectDataSource() private dataSource: DataSource) {}

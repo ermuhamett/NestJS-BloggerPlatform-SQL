@@ -1,5 +1,5 @@
 //import { SessionDocument } from '../../../domain/security.entity';
-import { Session } from '../../../domain/security.sql.entity';
+import { Session } from '../../../domain/security.entity';
 
 export class SecurityOutputDto {
   constructor(
