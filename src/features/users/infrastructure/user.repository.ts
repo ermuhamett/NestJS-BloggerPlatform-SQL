@@ -41,6 +41,7 @@ export class UserRepositorySql {
     if (!user) {
       return null;
     }
+    //console.log('Found user object inside user repo: ', user);
     return user;
   }
   async save(user: User): Promise<User> {

@@ -26,26 +26,30 @@ export class User {
   passwordHash: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: string;
 
   @ManyToOne(() => EmailConfirmation, { cascade: true })
   @JoinColumn({ name: 'emailConfirmationId' })
   emailConfirmation: EmailConfirmation;
 
-  //Есть второй прикольный способ сделать с помощью BeforeInsert, но экспериментировать думаю не стоит
-  constructor(data: UserCreateDto, passwordHash: string) {
-    this.login = data.login;
-    this.email = data.email;
-    this.passwordHash = passwordHash;
-    this.createdAt = new Date();
-    this.emailConfirmation = new EmailConfirmation();
-    this.emailConfirmation.isConfirmed = false;
-    this.emailConfirmation.confirmationCode = uuidv4();
-    this.emailConfirmation.confirmationCodeExpirationDate = add(new Date(), {
+  static create(userDto: UserCreateDto, passwordHash: string): User {
+    const user = new User();
+    user.login = userDto.login;
+    user.email = userDto.email;
+    user.passwordHash = passwordHash;
+    user.createdAt = new Date().toISOString();
+
+    const emailConfirmation = new EmailConfirmation();
+    emailConfirmation.isConfirmed = false;
+    emailConfirmation.confirmationCode = uuidv4();
+    emailConfirmation.confirmationCodeExpirationDate = add(new Date(), {
       hours: 1,
       minutes: 30,
     });
-    this.emailConfirmation.isPasswordRecoveryConfirmed = false;
+    emailConfirmation.isPasswordRecoveryConfirmed = false;
+
+    user.emailConfirmation = emailConfirmation;
+    return user;
   }
   updateConfirmationStatus() {
     this.emailConfirmation.isConfirmed = true;

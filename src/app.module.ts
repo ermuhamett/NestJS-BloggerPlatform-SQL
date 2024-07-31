@@ -33,9 +33,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
         // Не загружать автоматически сущности
-        autoLoadEntities: false,
+        autoLoadEntities: true,
         // Не синхронизировать автоматически структуру базы данных
-        synchronize: false,
+        synchronize: true,
       }),
       // Инжектируем сервис ConfigService, чтобы он был доступен в useFactory
       inject: [ConfigService],
