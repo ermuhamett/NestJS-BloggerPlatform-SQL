@@ -19,16 +19,4 @@ export class SecurityQueryRepository {
     }
     return result.map(SecurityMapper.toView);
   }
-  /*constructor(
-    @InjectModel(Session.name) private sessionModel: Model<Session>,
-  ) {}
-
-  async getDevices(userId: string) {
-    const authSessions = await this.sessionModel.find({ userId });
-    console.log('Auth session in getDevices: ', authSessions);
-    if (!authSessions) {
-      throw new NotFoundException('Session not found');
-    }
-    return authSessions.map(SecurityMapper.toView);
-  }*/
 }

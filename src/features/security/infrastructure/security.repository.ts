@@ -107,46 +107,4 @@ export class SecurityRepository {
       throw new InternalServerErrorException('Error saving session');
     }
   }
-  /*constructor(
-    @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
-  ) {}
-  async createSession(session: Session) {
-    const result: SessionDocument = await this.sessionModel.create(session);
-    return result.id;
-  }
-
-  async findSession(
-    userId: string,
-    deviceId: string,
-    createdAt?: number,
-  ): Promise<SessionDocument> {
-    //console.log({ userId, deviceId, createdAt });
-    return this.sessionModel.findOne({ userId, deviceId, createdAt }); //All done work well
-  }
-  async findSessionByDeviceId(deviceId: string): Promise<SessionDocument> {
-    return this.sessionModel.findOne({ deviceId });
-  }
-  async terminateAllOtherSessions(userId: string, currentDeviceId: string) {
-    try {
-      // Удаляем все сессии пользователя, кроме текущей
-      const result = await this.sessionModel.deleteMany({
-        userId,
-        deviceId: { $ne: currentDeviceId },
-      });
-      return result.deletedCount;
-    } catch (error) {
-      console.error('Error deleting other sessions:', error);
-      throw new InternalServerErrorException('Error deleting other sessions');
-    }
-  }
-
-  async terminateSessionById(deviceId: string) {
-    try {
-      const result = await this.sessionModel.deleteOne({ deviceId });
-      return result.deletedCount > 0;
-    } catch (error) {
-      console.error('Error deleting other sessions:', error);
-      throw new InternalServerErrorException('Error deleting other sessions');
-    }
-  }*/
 }

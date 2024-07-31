@@ -5,11 +5,13 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  ManyToOne,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
+import { Session } from '../../security/domain/security.entity';
 
 @Entity()
 export class User {
@@ -28,10 +30,12 @@ export class User {
   @CreateDateColumn()
   createdAt: string;
 
-  @ManyToOne(() => EmailConfirmation, { cascade: true })
+  @OneToOne(() => EmailConfirmation, { cascade: true })
   @JoinColumn({ name: 'emailConfirmationId' })
   emailConfirmation: EmailConfirmation;
 
+  @OneToMany(() => Session, (session) => session.user)
+  sessions: Session[];
   static create(userDto: UserCreateDto, passwordHash: string): User {
     const user = new User();
     user.login = userDto.login;

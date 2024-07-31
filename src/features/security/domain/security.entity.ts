@@ -1,36 +1,23 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from '../../users/domain/user.entity';
 
-/*@Schema()
+@Entity()
 export class Session {
-  @Prop({ required: true })
-  ip: string;
-
-  @Prop({ required: true })
+  @PrimaryGeneratedColumn('uuid')
   deviceId: string;
 
-  @Prop({ required: true })
+  @Column({ type: 'varchar', length: 255 })
+  ip: string;
+
+  @Column({ type: 'varchar', length: 255 })
   deviceName: string;
 
-  @Prop({ required: true })
-  userId: string;
-
-  @Prop({ required: true })
+  @Column({ type: 'bigint' })
   createdAt: number;
 
-  @Prop({ required: true })
+  @Column({ type: 'bigint' })
   expirationDate: number;
 
-  constructor(dto: Partial<Session>) {
-    this.ip = dto.ip;
-    this.deviceId = dto.deviceId;
-    this.deviceName = dto.deviceName;
-    this.userId = dto.userId; // Добавьте это
-    this.createdAt = dto.createdAt;
-    this.expirationDate = dto.expirationDate;
-  }
+  @ManyToOne(() => User, (user) => user.sessions, { onDelete: 'CASCADE' })
+  user: User;
 }
-
-export const SessionSchema = SchemaFactory.createForClass(Session);
-SessionSchema.loadClass(Session);
-export type SessionDocument = HydratedDocument<Session>;*/
