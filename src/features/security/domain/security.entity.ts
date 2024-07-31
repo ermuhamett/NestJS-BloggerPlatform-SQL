@@ -20,4 +20,21 @@ export class Session {
 
   @ManyToOne(() => User, (user) => user.sessions, { onDelete: 'CASCADE' })
   user: User;
+  static create(
+    userId: string,
+    deviceId: string,
+    deviceName: string,
+    ip: string,
+    createdAt: number,
+    expirationDate: number,
+  ): Session {
+    const session = new Session();
+    session.user = { userId } as User;
+    session.deviceId = deviceId;
+    session.deviceName = deviceName;
+    session.ip = ip;
+    session.createdAt = createdAt;
+    session.expirationDate = expirationDate;
+    return session;
+  }
 }
