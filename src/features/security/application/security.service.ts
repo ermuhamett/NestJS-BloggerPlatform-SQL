@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { SecurityRepository } from '../infrastructure/security.repository';
 import { JwtService } from '@nestjs/jwt';
-import { Session } from '../domain/security.entity';
+import { Session } from '../domain/security.orm.entity';
 //import { Session } from '../domain/security.sql.entity';
 //import { Session } from '../domain/security.entity';
 

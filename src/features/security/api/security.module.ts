@@ -6,7 +6,7 @@ import { SecurityQueryRepository } from '../infrastructure/security.query.reposi
 import { SecurityGuard } from '../../../common/guards/security.guard';
 import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Session } from '../domain/security.entity';
+import { Session } from '../domain/security.orm.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Session])],

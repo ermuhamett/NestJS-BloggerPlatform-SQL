@@ -1,6 +1,6 @@
 //import { EmailConfirmation, User } from '../../../domain/user.sql.entity';
 
-import { User } from '../../../domain/user.entity';
+import { User } from '../../../domain/user.orm.entity';
 
 export class UserOutputDto {
   constructor(

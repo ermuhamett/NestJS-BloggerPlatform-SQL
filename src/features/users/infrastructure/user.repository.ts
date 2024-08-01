@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserMapper } from '../api/models/output/user.output.model';
-import { User } from '../domain/user.entity';
-import { EmailConfirmation } from '../domain/email-confirmation.entity';
+import { User } from '../domain/user.orm.entity';
+import { EmailConfirmation } from '../domain/email-confirmation.orm.entity';
 
 @Injectable()
 export class UserRepositorySql {

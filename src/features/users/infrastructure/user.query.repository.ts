@@ -6,8 +6,8 @@ import {
 import { QueryOutputType } from '../../../base/adapters/query/query.class';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { User } from '../domain/user.entity';
-import { EmailConfirmation } from '../domain/email-confirmation.entity';
+import { User } from '../domain/user.orm.entity';
+import { EmailConfirmation } from '../domain/email-confirmation.orm.entity';
 
 @Injectable()
 export class UserQueryRepositorySql {

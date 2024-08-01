@@ -9,9 +9,9 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { EmailConfirmation } from './email-confirmation.entity';
+import { EmailConfirmation } from './email-confirmation.orm.entity';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
-import { Session } from '../../security/domain/security.entity';
+import { Session } from '../../security/domain/security.orm.entity';
 
 @Entity()
 export class User {

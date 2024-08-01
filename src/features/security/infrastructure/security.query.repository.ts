@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { SecurityMapper } from '../api/models/output/security.output.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Session } from '../domain/security.entity';
+import { Session } from '../domain/security.orm.entity';
 
 @Injectable()
 export class SecurityQueryRepository {

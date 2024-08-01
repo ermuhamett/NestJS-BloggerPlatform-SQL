@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../../users/domain/user.entity';
+import { User } from '../../users/domain/user.orm.entity';
 
 @Entity()
 export class Session {

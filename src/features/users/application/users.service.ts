@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UserRepositorySql } from '../infrastructure/user.repository';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
 import { BcryptService } from '../../../base/adapters/auth/bcrypt.service';
-import { User } from '../domain/user.entity';
+import { User } from '../domain/user.orm.entity';
 //import { User } from '../domain/user.sql.entity';
 
 // Для провайдера всегда необходимо применять декоратор @Injectable() и регистрировать в модуле
