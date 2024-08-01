@@ -19,7 +19,9 @@ import AppDataSource from './settings/typeorm.config';
     CqrsModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       useFactory: () => AppDataSource.options,
+      inject: [ConfigService],
     }),
     ThrottlerModule.forRoot([
       {
