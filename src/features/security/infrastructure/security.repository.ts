@@ -18,6 +18,7 @@ export class SecurityRepository {
     // Возвращаем идентификатор устройства
     return savedSession.deviceId;
   }
+
   async findSession(
     userId: string,
     deviceId: string,
@@ -37,20 +38,32 @@ export class SecurityRepository {
   async findSessionByDeviceId(deviceId: string): Promise<Session | null> {
     const session = await this.sessionRepo.findOne({
       where: { deviceId },
+      relations: ['user'], // Убедитесь, что связь с пользователем загружена
     });
+    console.log(
+      'Session info in findSessionByDeviceId inside repository: ',
+      session,
+    );
     return session || null;
   }
+  /**
+   * Создаем QueryBuilder для удаления сессий:
+   * Определяем действие удаления, в нашем случае delete().
+   * Указываем таблицу для удаления(Session).
+   * Устанавливаем условие для userId.
+   * Устанавливаем условие для исключения текущего @param  deviceId.
+   */
   async terminateAllOtherSessions(
     userId: string,
     currentDeviceId: string,
   ): Promise<number> {
     try {
       const result = await this.sessionRepo
-        .createQueryBuilder()
-        .delete()
-        .from(Session)
-        .where('user.id = :userId', { userId })
-        .andWhere('deviceId != :currentDeviceId', { currentDeviceId })
+        .createQueryBuilder() // Создаем QueryBuilder
+        .delete() // Определяем действие удаления
+        .from(Session) // Указываем таблицу для удаления
+        .where('userId = :userId', { userId }) // Устанавливаем условие для userId
+        .andWhere('deviceId != :currentDeviceId', { currentDeviceId }) // Устанавливаем условие для исключения текущего deviceId
         .execute();
 
       return result.affected || 0;

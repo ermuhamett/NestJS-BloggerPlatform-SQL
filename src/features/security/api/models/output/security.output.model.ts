@@ -12,7 +12,7 @@ export class SecurityOutputDto {
 
 export class SecurityMapper {
   public static toView(session: Session): SecurityOutputDto {
-    console.log('session.createdAt:', session.createdAt);
+    //console.log('session.createdAt:', session.createdAt);
     return {
       ip: session.ip,
       title: session.deviceName,

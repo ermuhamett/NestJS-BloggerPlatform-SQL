@@ -31,7 +31,7 @@ export class RefreshTokenUseCase
       deviceId,
     );
     console.log('RefreshToken usecase accessToken: ', accessToken);
-    console.log('RefreshToken usecase accessToken: ', refreshToken);
+    console.log('RefreshToken usecase refreshToken: ', refreshToken);
     if (!accessToken || !refreshToken) {
       throw new UnauthorizedException('Token not created');
     }
