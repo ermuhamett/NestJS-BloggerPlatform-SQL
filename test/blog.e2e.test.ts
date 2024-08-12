@@ -1,4 +1,8 @@
 import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppModule } from '../src/app.module';
+import { applyAppSettings } from '../src/settings/apply-app-setting';
+import { useContainer } from 'class-validator';
 import { initSettings } from './utils/init-testings';
 import request from 'supertest';
 import { BlogTestManager } from './utils/blog.test.manager';

@@ -4,8 +4,8 @@ import {
   UserOutputDto,
 } from '../api/models/output/user.output.model';
 import { QueryOutputType } from '../../../base/adapters/query/query.class';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from '../domain/user.orm.entity';
 import { EmailConfirmation } from '../domain/email-confirmation.orm.entity';
 
