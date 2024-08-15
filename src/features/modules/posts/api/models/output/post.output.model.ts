@@ -1,4 +1,4 @@
-import { PostDocument } from '../../../domain/post.entity';
+import { PostDocument } from '../../../domain/post.orm.entity';
 import {
   ExtendedLikesInfo,
   NewestLike,

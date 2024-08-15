@@ -1,17 +1,60 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-//import { Post, PostDocument } from '../domain/post.entity';
-import { Model } from 'mongoose';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { Post } from '../domain/post.sql.entity';
+import { Injectable } from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { PostLikes } from '../../../likes/domain/like.sql.entity';
 import { BlogCreateDto } from '../../blogs/api/models/input/blog.input.model';
 import { BlogPostCreateDto } from '../api/models/input/post.input.model';
+import { Post } from '../domain/post.orm.entity';
 
 @Injectable()
 export class PostRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Post) private readonly postRepository: Repository<Post>,
+  ) {}
+
+  async insertPost(postData: Post) {
+    const blog = this.postRepository.create(postData);
+    try {
+      const savedPost = await this.postRepository.save(blog);
+      console.log(
+        'Successful saved post in database by id: ',
+        savedPost.postId,
+      );
+      return savedPost.postId; // Возвращаем ID сохраненного поста
+    } catch (error) {
+      console.error(`Failed to create blog with error: ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   * conditions — объект условий поиска, который динамически заполняется в зависимости от наличия blogId;
+   * relations: ['blog'] — это опция для загрузки связанного блога, если нужна более подробная информация о нем
+   */
+  async find(postId: string, blogId?: string) {
+    const conditions = { postId };
+    if (blogId) {
+      conditions['blog'] = { blogId };
+    }
+    const post = await this.postRepository.findOne({
+      where: conditions,
+      relations: ['blog'], // Если нужна дополнительная информация о блоге
+    });
+
+    return post || null;
+  }
+
+  async deletePostById(postId: string) {
+    try {
+      const deleteResult = await this.postRepository.delete({ postId });
+      return deleteResult.affected > 0; // Возвращаем true, если удаление успешно
+    } catch (error) {
+      throw new Error(`Failed to delete post with error: ${error}`);
+    }
+  }
+
+  async updatePostLikes(updateModel: PostLikes) {}
+  /*constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async insertPost(post: Post) {
     const queryRunner = this.dataSource.createQueryRunner(); //создаем экземпляр запроса
@@ -109,7 +152,7 @@ export class PostRepository {
       throw new Error(`Failed to update blog with error: ${error.message}`);
     }
   }
-  //TODO Не создается запись в базе данных, возможно нужно изменить структуры как в комментах
+
   async updatePostLike(updateModel: PostLikes) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
@@ -142,7 +185,7 @@ export class PostRepository {
     } finally {
       await queryRunner.release();
     }
-  }
+  }*/
   /*constructor(
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     @InjectModel(PostLikes.name)

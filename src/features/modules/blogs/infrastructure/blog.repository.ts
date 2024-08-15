@@ -22,10 +22,10 @@ export class BlogRepository {
 
   async deleteBlogById(blogId: string) {
     try {
-      const deleteResult = await this.blogRepository.delete(blogId);
+      const deleteResult = await this.blogRepository.delete({ blogId });
       return deleteResult.affected > 0; // Возвращаем true, если удаление успешно
     } catch (error) {
-      throw new Error(`Failed to delete blog with error: ${error.message}`);
+      throw new Error(`Failed to delete blog with error: ${error}`);
     }
   }
 

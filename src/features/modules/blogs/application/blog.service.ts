@@ -4,7 +4,7 @@ import { BlogCreateDto } from '../api/models/input/blog.input.model';
 //import { Blog, BlogDocument } from '../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Blog } from '../domain/blog.sql.entity';
+import { Blog } from '../domain/blog.orm.entity';
 
 @Injectable()
 export class BlogService {
@@ -13,7 +13,7 @@ export class BlogService {
   ) {}
 
   async createBlog(dto: BlogCreateDto) {
-    const blog = new Blog(dto); //через конструктор класса
+    const blog = Blog.createBlog(dto); //через конструктор класса
     const newBlogId = await this.blogRepository.insertBlog(blog);
     if (!newBlogId) {
       return {

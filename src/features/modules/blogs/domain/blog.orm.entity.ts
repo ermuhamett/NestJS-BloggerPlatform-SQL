@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { BlogCreateDto } from '../api/models/input/blog.input.model';
+import { Post } from '../../posts/domain/post.orm.entity';
 
 @Entity()
 export class Blog {
@@ -21,6 +22,9 @@ export class Blog {
   @Column()
   isMembership: boolean;
 
+  // Новое поле для связи "один ко многим" с Post
+  @OneToMany(() => Post, (post) => post.blog)
+  posts: Post[]; // Массив постов, связанных с этим блогом
   static createBlog(blogDto: BlogCreateDto) {
     const blog = new Blog();
     blog.name = blogDto.name;
@@ -28,6 +32,7 @@ export class Blog {
     blog.websiteUrl = blogDto.websiteUrl;
     blog.createdAt = new Date().toISOString();
     blog.isMembership = false;
+    return blog;
   }
 
   public updateBlog(updatedData: Partial<Blog>) {

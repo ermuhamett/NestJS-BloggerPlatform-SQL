@@ -8,8 +8,8 @@ import {
 import { BlogRepository } from '../../blogs/infrastructure/blog.repository';
 import { LikeStatus } from '../../../likes/api/models/likes.info.model';
 //import { PostLikes } from '../../../likes/domain/like.entity';
-import { Post } from '../domain/post.sql.entity';
 import { PostLikes } from '../../../likes/domain/like.sql.entity';
+import { Post } from '../domain/post.orm.entity';
 
 @Injectable()
 export class PostService {
@@ -23,7 +23,7 @@ export class PostService {
     if (!blog) {
       throw new NotFoundException('Blog not found in database');
     }
-    const post = new Post(postDto, blog.name);
+    const post = Post.createPost(postDto, blog);
     /*const post:Post={
             title:postDto.title,
             shortDescription:postDto.shortDescription,
