@@ -4,9 +4,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Blog } from '../../blogs/domain/blog.orm.entity';
+import { PostLikes } from '../../../likes/domain/postLikes.orm.entity';
 
 @Entity()
 export class Post {
@@ -28,6 +30,10 @@ export class Post {
 
   @Column({ type: 'timestamp' })
   createdAt: string;
+
+  // Add this relation to PostLikes
+  @OneToMany(() => PostLikes, (postLikes) => postLikes.post)
+  likes: PostLikes[];
   static createPost(data: PostCreateDto, blog: Blog) {
     const post = new Post();
     post.title = data.title;

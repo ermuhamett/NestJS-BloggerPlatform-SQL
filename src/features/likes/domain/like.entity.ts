@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 import { PostLikeDto } from '../../modules/posts/api/models/input/post.input.model';
 import { CommentLikeDb } from '../api/models/likes.info.model';
 
-@Schema()
+/*@Schema()
 export class CommentLikes {
   @Prop()
   authorId: string;
@@ -57,4 +57,4 @@ export const PostLikesSchema = SchemaFactory.createForClass(PostLikes);
 PostLikesSchema.loadClass(PostLikes);
 
 export type CommentLikesDocument = HydratedDocument<CommentLikes>;
-export type PostLikesDocument = HydratedDocument<PostLikes>;
+export type PostLikesDocument = HydratedDocument<PostLikes>;*/

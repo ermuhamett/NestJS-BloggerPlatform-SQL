@@ -12,6 +12,7 @@ import {
 import { EmailConfirmation } from './email-confirmation.orm.entity';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
 import { Session } from '../../security/domain/security.orm.entity';
+import { PostLikes } from '../../likes/domain/postLikes.orm.entity';
 
 @Entity()
 export class User {
@@ -36,6 +37,14 @@ export class User {
 
   @OneToMany(() => Session, (session) => session.user)
   sessions: Session[];
+
+  // Add this relation to PostLikes
+  @OneToMany(() => PostLikes, (postLikes) => postLikes.likedUserId)
+  postLikes: PostLikes[];
+
+  // If you also need the relationship for CommentLikes
+  //@OneToMany(() => CommentLikes, (commentLikes) => commentLikes.author)
+  //commentLikes: CommentLikes[];
   static create(userDto: UserCreateDto, passwordHash: string): User {
     const user = new User();
     user.login = userDto.login;
