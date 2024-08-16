@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
-import { PostLikes } from '../../../likes/domain/like.sql.entity';
-import { BlogCreateDto } from '../../blogs/api/models/input/blog.input.model';
-import { BlogPostCreateDto } from '../api/models/input/post.input.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Post } from '../domain/post.orm.entity';
+import { PostLikes } from '../../../likes/domain/postLikes.orm.entity';
 
 @Injectable()
 export class PostRepository {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
+    @InjectRepository(PostLikes)
+    private readonly postLikesRepository: Repository<PostLikes>,
   ) {}
 
   async insertPost(postData: Post) {
@@ -53,7 +53,27 @@ export class PostRepository {
     }
   }
 
-  async updatePostLikes(updateModel: PostLikes) {}
+  //TODO Надо дописать данный метод так как уже есть сущность лайки для поста
+  async updatePostLikes(updateModel: PostLikes) {
+    // Пытаемся найти существующую запись в базе данных
+    const existingLike = await this.postLikesRepository.findOne({
+      where: {
+        postId: updateModel.postId,
+        likedUserId: updateModel.likedUserId,
+      },
+    });
+    // Если запись существует, обновляем её
+    if (existingLike) {
+      existingLike.likedUserLogin = updateModel.likedUserLogin;
+      existingLike.addedAt = updateModel.addedAt;
+      existingLike.status = updateModel.status;
+      await this.postLikesRepository.save(existingLike);
+    } else {
+      // Если записи нет, создаем новую
+      await this.postLikesRepository.save(updateModel);
+    }
+    return true; // Возвращаем true, если операция успешна
+  }
   /*constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async insertPost(post: Post) {
@@ -185,43 +205,5 @@ export class PostRepository {
     } finally {
       await queryRunner.release();
     }
-  }*/
-  /*constructor(
-    @InjectModel(Post.name) private postModel: Model<PostDocument>,
-    @InjectModel(PostLikes.name)
-    private postLikesModel: Model<PostLikesDocument>,
-  ) {}
-
-  async insertPost(post: Post) {
-    const result: PostDocument = await this.postModel.create(post);
-    return result.id;
-  }
-
-  async find(postId: string): Promise<PostDocument> {
-    return this.postModel.findById(postId).exec();
-  }
-
-  async deletePostById(postId: string) {
-    try {
-      const result = await this.postModel.findOneAndDelete({ _id: postId });
-      return result.$isDeleted();
-    } catch (error) {
-      throw new Error(`Failed to delete blog with error ${error}`);
-    }
-  }
-  async updatePostLike(updateModel: PostLikes) {
-    const like = await this.postLikesModel.findOneAndUpdate(
-      {
-        $and: [
-          { likedUserLogin: updateModel.likedUserLogin },
-          { postId: updateModel.postId },
-        ],
-      },
-      updateModel,
-    );
-    if (!like) {
-      await this.postLikesModel.create(updateModel);
-    }
-    //return true;
   }*/
 }
