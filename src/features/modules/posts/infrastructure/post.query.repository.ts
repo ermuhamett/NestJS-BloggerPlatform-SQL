@@ -100,19 +100,24 @@ export class PostQueryRepository {
     const sortDirection = query.sortDirection === 'asc' ? 'ASC' : 'DESC';
     const offset = (query.pageNumber - 1) * query.pageSize;
     const limit = query.pageSize;
+
+    // Вызов метода для получения корректного поля сортировки
+    const sortColumn = this.getSortColumn(sortBy);
+
     // Подсчет общего количества записей
     const totalCount = await this.postQueryRepository.count({ where: filter });
     // Подсчет количества страниц
     const pagesCount = Math.ceil(totalCount / limit);
     // Получение постов с учетом фильтрации, сортировки и пагинации
     try {
-      const posts = await this.postQueryRepository.find({
-        where: filter,
-        order: { [sortBy]: sortDirection },
-        skip: offset,
-        take: limit,
-        relations: ['blog'], // Подгружаем связанные данные, если необходимо
-      });
+      const queryBuilder = this.postQueryRepository
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.blog', 'blog') // Выполняем JOIN с сущностью Blog
+        .orderBy(sortColumn, sortDirection) // Используем поле blogName для сортировки, если оно задано
+        .where(filter)
+        .skip(offset)
+        .take(limit);
+      const posts = await queryBuilder.getMany();
       // Получение дополнительной информации о лайках
       const extendedLikesInfos = await Promise.all(
         posts.map((post) => this.getPostLikes(post.postId, userId)),
@@ -134,6 +139,17 @@ export class PostQueryRepository {
       };
     } catch (e) {
       console.log({ get_post_query_repo: e });
+    }
+  }
+  // Вынесенный метод для получения корректного поля сортировки
+  private getSortColumn(sortBy: string): string {
+    if (sortBy === 'blogName') {
+      return 'blog.name';
+    } else if (sortBy.startsWith('blog.')) {
+      const blogSortBy = sortBy.replace('blog.', '');
+      return `blog.${blogSortBy}`;
+    } else {
+      return `post.${sortBy}`;
     }
   }
 }
