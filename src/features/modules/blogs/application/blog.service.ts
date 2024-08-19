@@ -1,16 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { BlogRepository } from '../infrastructure/blog.repository';
 import { BlogCreateDto } from '../api/models/input/blog.input.model';
-//import { Blog, BlogDocument } from '../domain/blog.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { Blog } from '../domain/blog.orm.entity';
 
 @Injectable()
 export class BlogService {
-  constructor(
-    private blogRepository: BlogRepository, //@InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
-  ) {}
+  constructor(private blogRepository: BlogRepository) {}
 
   async createBlog(dto: BlogCreateDto) {
     const blog = Blog.createBlog(dto); //через конструктор класса
@@ -24,9 +19,12 @@ export class BlogService {
   }
 
   async updateBlogById(blogId: string, blogDto: BlogCreateDto) {
-    //const existingBlog = await this.blogRepository.find(blogId);
-    //existingBlog.updateBlog(blogDto);
-    await this.blogRepository.updateBlogById(blogId, blogDto);
+    const existingBlog = await this.blogRepository.find(blogId);
+    if (!existingBlog) {
+      throw new NotFoundException('Blog not found');
+    }
+    existingBlog.updateBlog(blogDto);
+    await this.blogRepository.save(existingBlog);
     //await existingBlog.save();
     //return await this.blogRepository.updateBlogById(blogId, blogDto)
   }

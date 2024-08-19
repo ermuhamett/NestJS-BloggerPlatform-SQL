@@ -39,5 +39,6 @@ export class PostLikes {
       postLike.addedAt = dto.addedAt ?? new Date().toISOString();
       postLike.status = dto.status;
     }
+    return postLike;
   }
 }

@@ -44,6 +44,10 @@ export class PostRepository {
     return post || null;
   }
 
+  async save(post: Post) {
+    await this.postRepository.save(post);
+  }
+
   async deletePostById(postId: string) {
     try {
       const deleteResult = await this.postRepository.delete({ postId });

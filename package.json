@@ -6,9 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/settings/typeorm.config.ts",
-    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/settings/typeorm.config.ts",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/settings/typeorm.config.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/typeorm.config.ts",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/typeorm.config.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/typeorm.config.ts",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

@@ -1,13 +1,12 @@
 import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import { applyAppSettings } from '../src/settings/apply-app-setting';
-import { useContainer } from 'class-validator';
 import { initSettings } from './utils/init-testings';
 import request from 'supertest';
 import { BlogTestManager } from './utils/blog.test.manager';
 import { BlogCreateDto } from '../src/features/modules/blogs/api/models/input/blog.input.model';
 import { BlogPostCreateDto } from '../src/features/modules/posts/api/models/input/post.input.model';
+import { useContainer } from 'class-validator';
+import { AppModule } from '../src/app.module';
+import { BlogOutputDto } from '../src/features/modules/blogs/api/models/output/blog.output.model';
 
 describe('Blog entity test', () => {
   let app: INestApplication;
@@ -22,6 +21,7 @@ describe('Blog entity test', () => {
     app = initializedApp;
     httpServer = initializedHttpServer;
     blogTestManager = new BlogTestManager(app);
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
     const response = await request(httpServer).delete('/api/testing/all-data');
     console.log(response.status);
   });
@@ -33,10 +33,19 @@ describe('Blog entity test', () => {
     const blogDto: BlogCreateDto = {
       name: 'Test Blog',
       description: 'A test blog description',
-      websiteUrl: 'http://testblog.com',
+      websiteUrl: 'https://someurl.com',
     };
+    // Создаём объект BlogOutputDto с ожидаемыми значениями
+    const expectedBlog = new BlogOutputDto(
+      expect.any(String), // id
+      blogDto.name, // name
+      blogDto.description, // description
+      blogDto.websiteUrl, // websiteUrl
+      expect.any(String), // createdAt
+      expect.any(Boolean), // isMembership
+    );
     createdBlog = await blogTestManager.createBlog(blogDto, httpServer);
-    expect(createdBlog).toHaveProperty('id');
+    expect(createdBlog).toEqual(expectedBlog);
   });
 
   it('should create a new post in the blog', async () => {
