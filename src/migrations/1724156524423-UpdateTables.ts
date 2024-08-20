@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class CreateTablesInDatabase1723976236245 implements MigrationInterface {
-    name = 'CreateTablesInDatabase1723976236245'
+export class UpdateTables1724156524423 implements MigrationInterface {
+    name = 'UpdateTables1724156524423'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "email_confirmation" ("emailId" uuid NOT NULL DEFAULT uuid_generate_v4(), "isConfirmed" boolean NOT NULL DEFAULT false, "confirmationCode" character varying NOT NULL, "confirmationCodeExpirationDate" TIMESTAMP NOT NULL, "passwordRecoveryCode" character varying, "passwordRecoveryCodeExpirationDate" TIMESTAMP, "isPasswordRecoveryConfirmed" boolean NOT NULL DEFAULT false, CONSTRAINT "PK_4f8dc963c6006501672677c263b" PRIMARY KEY ("emailId"))`);
-        await queryRunner.query(`CREATE TABLE "blog" ("blogId" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" character varying NOT NULL, "description" character varying NOT NULL, "websiteUrl" character varying NOT NULL, "createdAt" character varying NOT NULL, "isMembership" boolean NOT NULL, CONSTRAINT "PK_4b0ec365f40044203b463f977b5" PRIMARY KEY ("blogId"))`);
+        await queryRunner.query(`CREATE TABLE "blog" ("blogId" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" character varying COLLATE "C" NOT NULL, "description" character varying NOT NULL, "websiteUrl" character varying NOT NULL, "createdAt" character varying NOT NULL, "isMembership" boolean NOT NULL, CONSTRAINT "PK_4b0ec365f40044203b463f977b5" PRIMARY KEY ("blogId"))`);
         await queryRunner.query(`CREATE TABLE "post" ("postId" uuid NOT NULL DEFAULT uuid_generate_v4(), "title" character varying(35) NOT NULL, "shortDescription" character varying(110) NOT NULL, "content" character varying(1100) NOT NULL, "createdAt" TIMESTAMP NOT NULL, "blogId" uuid, CONSTRAINT "PK_9b3ab408235ba7d60345a84f994" PRIMARY KEY ("postId"))`);
         await queryRunner.query(`CREATE TABLE "post_likes" ("postId" uuid NOT NULL, "likedUserId" uuid NOT NULL, "likedUserLogin" character varying(255) NOT NULL, "addedAt" TIMESTAMP NOT NULL, "status" character varying(255) NOT NULL, "postPostId" uuid, "userUserId" uuid, CONSTRAINT "PK_30761ac86c3569c74454899cb48" PRIMARY KEY ("postId", "likedUserId"))`);
         await queryRunner.query(`CREATE TABLE "user" ("userId" uuid NOT NULL DEFAULT uuid_generate_v4(), "login" character varying COLLATE "C" NOT NULL, "email" character varying NOT NULL, "passwordHash" character varying NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "emailConfirmationId" uuid, CONSTRAINT "REL_5f273954b3ecad701a626e3894" UNIQUE ("emailConfirmationId"), CONSTRAINT "PK_d72ea127f30e21753c9e229891e" PRIMARY KEY ("userId"))`);

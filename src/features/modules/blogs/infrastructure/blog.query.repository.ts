@@ -8,7 +8,7 @@ import {
   QueryOutputType,
 } from '../../../../base/adapters/query/query.class';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Blog } from '../domain/blog.orm.entity';
 
 @Injectable()

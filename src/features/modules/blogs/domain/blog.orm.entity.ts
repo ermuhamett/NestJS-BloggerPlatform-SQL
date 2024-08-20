@@ -7,7 +7,7 @@ export class Blog {
   @PrimaryGeneratedColumn('uuid')
   blogId: string; //PK
 
-  @Column()
+  @Column({ collation: 'C' })
   name: string;
 
   @Column()
