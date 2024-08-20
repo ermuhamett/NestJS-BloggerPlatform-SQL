@@ -8,7 +8,7 @@ import {
   QueryOutputType,
 } from '../../../../base/adapters/query/query.class';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { Blog } from '../domain/blog.orm.entity';
 
 @Injectable()
@@ -38,7 +38,7 @@ export class BlogQueryRepository {
     const limit = query.pageSize;
 
     // Фильтрация по имени
-    const where = searchNameTerm ? { name: Like(`%${searchNameTerm}%`) } : {};
+    const where = searchNameTerm ? { name: ILike(`%${searchNameTerm}%`) } : {};
     // Подсчет общего количества записей
     const totalCount = await this.blogQueryRepository.count({ where });
     // Подсчет количества страниц
