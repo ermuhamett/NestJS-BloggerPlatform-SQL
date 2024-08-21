@@ -31,7 +31,6 @@ export const initSettings = async (
 
   //const databaseConnection = app.get<Connection>(getConnectionToken());
   const httpServer = app.getHttpServer();
-  //const userTestManger = new UsersTestManager(app);
 
   //чистим БД
   //await deleteAllData(databaseConnection);
