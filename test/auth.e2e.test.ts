@@ -9,7 +9,6 @@ import { LoginInputDto } from '../src/features/auth/api/models/input/create-auth
 import { EmailService } from '../src/base/adapters/email/email.service';
 import { useContainer } from 'class-validator';
 
-
 describe('Auth Service test', () => {
   let app: INestApplication;
   let authTestManager: AuthTestManger;

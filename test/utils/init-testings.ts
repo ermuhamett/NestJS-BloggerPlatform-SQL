@@ -1,8 +1,7 @@
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { applyAppSettings } from '../../src/settings/apply-app-setting';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { useContainer } from 'class-validator';
 
 type SettingsOptions = {
   // Функция для добавления мока
@@ -28,7 +27,7 @@ export const initSettings = async (
   const app = testingAppModule.createNestApplication();
   applyAppSettings(app);
   await app.init();
-
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   //const databaseConnection = app.get<Connection>(getConnectionToken());
   const httpServer = app.getHttpServer();
   //const userTestManger = new UsersTestManager(app);
