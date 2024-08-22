@@ -1,5 +1,5 @@
 import { LikesInfo } from '../../../../../likes/api/models/likes.info.model';
-import { CommentDocument } from '../../../domain/comment.entity';
+import { CommentDocument } from '../../../domain/comment.orm.entity';
 import { Comment } from '../../../domain/comment.sql.entity';
 
 export interface ICommentatorInfo {

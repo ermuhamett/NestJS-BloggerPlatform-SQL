@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Comment, CommentDocument } from '../domain/comment.entity';
+import { Comment, CommentDocument } from '../domain/comment.orm.entity';
 import { Model } from 'mongoose';
 import { CommentMapper } from '../api/models/output/comment.output.model';
 import {

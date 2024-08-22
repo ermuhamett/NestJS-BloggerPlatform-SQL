@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Blog } from '../../blogs/domain/blog.orm.entity';
 import { PostLikes } from '../../../likes/domain/postLikes.orm.entity';
+import { Comment } from '../../comments/domain/comment.orm.entity';
 
 @Entity()
 export class Post {
@@ -34,6 +35,10 @@ export class Post {
   // Add this relation to PostLikes
   @OneToMany(() => PostLikes, (postLikes) => postLikes.post)
   likes: PostLikes[];
+
+  // Добавляем связь с Comment
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
   static createPost(data: PostCreateDto, blog: Blog) {
     const post = new Post();
     post.title = data.title;
@@ -55,52 +60,3 @@ export class Post {
     }
   }
 }
-/*@Schema()
-export class Post {
-  @Prop()
-  title: string;
-
-  @Prop()
-  shortDescription: string;
-
-  @Prop()
-  content: string;
-
-  @Prop()
-  blogId: string;
-
-  @Prop()
-  blogName: string;
-
-  @Prop()
-  createdAt: string;
-
-  constructor(data: PostCreateDto, blogName: string) {
-    this.title = data.title;
-    this.shortDescription = data.shortDescription;
-    this.content = data.content;
-    this.blogId = data.blogId;
-    this.blogName = blogName;
-    this.createdAt = new Date().toISOString();
-  }
-
-  // Метод для обновления данных поста
-  updatePost(updatedData: Partial<PostCreateDto>) {
-    if (updatedData.title) {
-      this.title = updatedData.title;
-    }
-    if (updatedData.shortDescription) {
-      this.shortDescription = updatedData.shortDescription;
-    }
-    if (updatedData.content) {
-      this.content = updatedData.content;
-    }
-    if (updatedData.blogId) {
-      this.blogId = updatedData.blogId;
-    }
-  }
-}
-
-export const PostSchema = SchemaFactory.createForClass(Post);
-PostSchema.loadClass(Post); //Необходима чтобы методы работали
-export type PostDocument = HydratedDocument<Post>;*/

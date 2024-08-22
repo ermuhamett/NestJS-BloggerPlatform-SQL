@@ -13,6 +13,7 @@ import { EmailConfirmation } from './email-confirmation.orm.entity';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
 import { Session } from '../../security/domain/security.orm.entity';
 import { PostLikes } from '../../likes/domain/postLikes.orm.entity';
+import { Comment } from '../../modules/comments/domain/comment.orm.entity';
 
 @Entity()
 export class User {
@@ -41,6 +42,10 @@ export class User {
   // Add this relation to PostLikes
   @OneToMany(() => PostLikes, (postLikes) => postLikes.likedUserId)
   postLikes: PostLikes[];
+
+  // Добавляем связь с Comment
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 
   // If you also need the relationship for CommentLikes
   //@OneToMany(() => CommentLikes, (commentLikes) => commentLikes.author)
