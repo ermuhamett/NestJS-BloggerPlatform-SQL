@@ -3,7 +3,7 @@ import {
   NewestLike,
 } from '../../../../../likes/api/models/likes.info.model';
 import { Post } from '../../../domain/post.orm.entity';
-import { PostLikes } from '../../../../../likes/domain/postLikes.orm.entity';
+import { PostLike } from '../../../../../likes/domain/postLikes.orm.entity';
 
 export class PostOutputDto {
   constructor(
@@ -35,7 +35,7 @@ export class PostMapper {
 }
 
 export class NewestLikesMapper {
-  public static toView(like: PostLikes): NewestLike {
+  public static toView(like: PostLike): NewestLike {
     return {
       addedAt: like.addedAt,
       userId: like.likedUserId,

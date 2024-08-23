@@ -1,6 +1,13 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../../../users/domain/user.orm.entity';
 import { Post } from '../../posts/domain/post.orm.entity';
+import { CommentLike } from '../../../likes/domain/commentLikes.orm.entity';
 
 @Entity()
 export class Comment {
@@ -24,6 +31,10 @@ export class Comment {
 
   @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE' })
   post: Post;
+
+  // Добавляем связь с CommentLike
+  @OneToMany(() => CommentLike, (commentLike) => commentLike.parent)
+  likes: CommentLike[];
   static createComment(dto: Partial<Comment>) {
     const newComment = new Comment();
     newComment.postId = dto.postId;

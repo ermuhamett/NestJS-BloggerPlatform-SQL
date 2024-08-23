@@ -30,7 +30,7 @@ import { AdminPostController } from './posts/api/admin.post.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blogs/domain/blog.orm.entity';
 import { Post } from './posts/domain/post.orm.entity';
-import { PostLikes } from '../likes/domain/postLikes.orm.entity';
+import { PostLike } from '../likes/domain/postLikes.orm.entity';
 
 const blogProviders: Provider[] = [
   BlogService,
@@ -52,7 +52,7 @@ const commentProviders: Provider[] = [
   imports: [
     AuthModule,
     UserModule,
-    TypeOrmModule.forFeature([Blog, Post, PostLikes]),
+    TypeOrmModule.forFeature([Blog, Post, PostLike]),
   ],
   controllers: [
     PublicBlogController,

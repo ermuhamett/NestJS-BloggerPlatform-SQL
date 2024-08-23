@@ -8,7 +8,7 @@ import {
 import { BlogRepository } from '../../blogs/infrastructure/blog.repository';
 import { LikeStatus } from '../../../likes/api/models/likes.info.model';
 import { Post } from '../domain/post.orm.entity';
-import { PostLikes } from '../../../likes/domain/postLikes.orm.entity';
+import { PostLike } from '../../../likes/domain/postLikes.orm.entity';
 
 @Injectable()
 export class PostService {
@@ -45,7 +45,7 @@ export class PostService {
     userId: string,
     userLogin: string,
   ) {
-    const updatePostLike = PostLikes.createLikeForPost({
+    const updatePostLike = PostLike.createLikeForPost({
       postId,
       status,
       likedUserId: userId,

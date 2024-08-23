@@ -15,15 +15,15 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Post } from '../domain/post.orm.entity';
-import { PostLikes } from '../../../likes/domain/postLikes.orm.entity';
+import { PostLike } from '../../../likes/domain/postLikes.orm.entity';
 
 @Injectable()
 export class PostQueryRepository {
   constructor(
     @InjectRepository(Post)
     private readonly postQueryRepository: Repository<Post>,
-    @InjectRepository(PostLikes)
-    private readonly postLikesRepository: Repository<PostLikes>,
+    @InjectRepository(PostLike)
+    private readonly postLikesRepository: Repository<PostLike>,
   ) {}
 
   async getPostById(postId: string, userId?: string) {
@@ -70,7 +70,7 @@ export class PostQueryRepository {
 
   private async getLikesInfo(
     postId: string,
-  ): Promise<[number, number, PostLikes[]]> {
+  ): Promise<[number, number, PostLike[]]> {
     return await Promise.all([
       this.postLikesRepository.count({
         where: { postId, status: LikeStatus.LIKE },

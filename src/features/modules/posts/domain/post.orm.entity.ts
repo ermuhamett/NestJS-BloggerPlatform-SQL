@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Blog } from '../../blogs/domain/blog.orm.entity';
-import { PostLikes } from '../../../likes/domain/postLikes.orm.entity';
+import { PostLike } from '../../../likes/domain/postLikes.orm.entity';
 import { Comment } from '../../comments/domain/comment.orm.entity';
 
 @Entity()
@@ -33,8 +33,8 @@ export class Post {
   createdAt: string;
 
   // Add this relation to PostLikes
-  @OneToMany(() => PostLikes, (postLikes) => postLikes.post)
-  likes: PostLikes[];
+  @OneToMany(() => PostLike, (postLikes) => postLikes.post)
+  likes: PostLike[];
 
   // Добавляем связь с Comment
   @OneToMany(() => Comment, (comment) => comment.post)
