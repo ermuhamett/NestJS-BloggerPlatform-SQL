@@ -1,16 +1,81 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-//import { Comment, CommentDocument } from '../domain/comment.entity';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { Comment } from '../domain/comment.sql.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CommentLikes } from '../../../likes/domain/like.sql.entity';
-import { CommentCreateDto } from '../api/models/input/comment.input.model';
+import { Comment } from '../domain/comment.orm.entity';
+import { CommentLike } from '../../../likes/domain/commentLikes.orm.entity';
 
 @Injectable()
 export class CommentRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Comment)
+    private readonly commentRepository: Repository<Comment>,
+    @InjectRepository(CommentLike)
+    private readonly commentLikesRepository: Repository<CommentLike>,
+  ) {}
+
+  async createComment(commentData: Comment) {
+    const comment = this.commentRepository.create(commentData);
+    try {
+      const savedComment = await this.commentRepository.save(comment);
+      console.log(
+        'Successful saved comment in database by id: ',
+        savedComment.commentId,
+      );
+    } catch (error) {
+      console.error(`Failed to create blog with error: ${error}`);
+      return false;
+    }
+  }
+  async find(commentId: string) {
+    const comment = await this.commentRepository.findOne({
+      where: { commentId },
+    });
+    if (!comment) {
+      return null;
+    }
+    return comment;
+  }
+
+  async save(comment: Comment) {
+    await this.commentRepository.save(comment);
+  }
+
+  async updateLikeStatus(updatedLikeStatusDto: CommentLikes) {
+    const { authorId, parentId, status, createdAt } = updatedLikeStatusDto;
+    try {
+      // Найти существующий лайк
+      const existingLike = await this.commentLikesRepository.findOne({
+        where: { authorId, parentId },
+      });
+      if (existingLike) {
+        // Обновить статус если уже существует
+        existingLike.status = status;
+        return await this.commentLikesRepository.save(existingLike);
+      } else {
+        // Создать новый если не существует
+        const newLike = this.commentLikesRepository.create({
+          authorId,
+          parentId,
+          status,
+          createdAt,
+        });
+        return await this.commentLikesRepository.save(newLike);
+      }
+    } catch (error) {
+      console.error('Error updating comment like:', error);
+      throw error;
+    }
+  }
+  async deleteCommentById(commentId: string) {
+    try {
+      const deleteResult = await this.commentRepository.delete({ commentId });
+      return deleteResult.affected > 0; // Возвращаем true, если удаление успешно
+    } catch (error) {
+      throw new Error(`Failed to delete post with error: ${error}`);
+    }
+  }
+  /*constructor(@InjectDataSource() private dataSource: DataSource) {}
   async createComment(comment: Comment) {
     const query = `
       INSERT INTO "Comments" ("postIdFk", "content", "userIdFk", "createdAt")
@@ -102,7 +167,7 @@ export class CommentRepository {
     } catch (error) {
       throw new Error(`Failed to delete comment with error: ${error}`);
     }
-  }
+  }*/
   /*constructor(
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
     @InjectModel(CommentLikes.name)

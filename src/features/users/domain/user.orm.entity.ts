@@ -52,9 +52,6 @@ export class User {
   @OneToMany(() => CommentLike, (commentLikes) => commentLikes.author)
   commentLikes: CommentLike[];
 
-  // If you also need the relationship for CommentLikes
-  //@OneToMany(() => CommentLikes, (commentLikes) => commentLikes.author)
-  //commentLikes: CommentLikes[];
   static create(userDto: UserCreateDto, passwordHash: string): User {
     const user = new User();
     user.login = userDto.login;
