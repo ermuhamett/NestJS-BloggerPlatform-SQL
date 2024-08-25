@@ -26,7 +26,7 @@ export class PostMapper {
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
-      blogId: post.blog.blogId, //TODO тут надо тестить возможно каст не сработает, то есть проверить через console.log
+      blogId: post.blog.blogId,
       blogName: post.blog.name,
       createdAt: post.createdAt, // Добавляем createdAt,
       extendedLikesInfo: likes,

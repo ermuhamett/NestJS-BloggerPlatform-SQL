@@ -1,6 +1,5 @@
 import { LikesInfo } from '../../../../../likes/api/models/likes.info.model';
-import { CommentDocument } from '../../../domain/comment.orm.entity';
-import { Comment } from '../../../domain/comment.sql.entity';
+import { Comment } from '../../../domain/comment.orm.entity';
 
 export interface ICommentatorInfo {
   userId: string;
@@ -22,8 +21,8 @@ export class CommentMapper {
       id: comment.commentId.toString(),
       content: comment.content,
       commentatorInfo: {
-        userId: comment.userIdFk,
-        userLogin: comment.login,
+        userId: comment.userId,
+        userLogin: comment.user.login,
       },
       createdAt: comment.createdAt,
       likesInfo: likes,

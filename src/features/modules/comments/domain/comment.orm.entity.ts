@@ -41,8 +41,9 @@ export class Comment {
     newComment.content = dto.content;
     newComment.userId = dto.userId;
     newComment.createdAt = dto.createdAt || new Date().toISOString();
+    return newComment;
   }
-  private updateComment(updatedData: Partial<Comment>) {
+  public updateComment(updatedData: Partial<Comment>) {
     if (updatedData.content) {
       this.content = updatedData.content;
     }

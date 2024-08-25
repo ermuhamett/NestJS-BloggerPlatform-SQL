@@ -1,31 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CommentRepository } from '../infrastructure/comment.repository';
-//import { Comment } from '../domain/comment.entity';
-import {
-  CommentLikeDb,
-  LikeInputDto,
-  LikeStatus,
-} from '../../../likes/api/models/likes.info.model';
+import { LikeInputDto } from '../../../likes/api/models/likes.info.model';
 import { CommentCreateDto } from '../api/models/input/comment.input.model';
-import { Comment } from '../domain/comment.sql.entity';
 import { CommentLikes } from '../../../likes/domain/like.sql.entity';
+import { Comment } from '../domain/comment.orm.entity';
 
 @Injectable()
 export class CommentService {
   constructor(private readonly commentRepository: CommentRepository) {}
 
-  async createComment(
-    content: string,
-    userId: string,
-    //commentatorInfo: { id: string; login: string },
-    postId: string,
-  ) {
+  async createComment(content: string, userId: string, postId: string) {
     const dto = {
       content,
       userIdFk: userId,
       postIdFk: postId,
     };
-    const newComment = new Comment(dto);
+    const newComment = Comment.createComment(dto);
     console.log('Comment dto inside service: ', newComment);
     return await this.commentRepository.createComment(newComment);
   }
@@ -35,7 +25,9 @@ export class CommentService {
     if (!existingComment) {
       throw new NotFoundException('Comments not found in database');
     }
-    await this.commentRepository.updateCommentById(commentId, commentDto);
+    existingComment.updateComment(commentDto);
+    await this.commentRepository.save(existingComment);
+    //await this.commentRepository.updateCommentById(commentId, commentDto);
   }
   async updateCommentLikeStatus(
     commentId: string,

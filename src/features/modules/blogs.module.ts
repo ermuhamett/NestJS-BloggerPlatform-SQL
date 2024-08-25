@@ -5,13 +5,6 @@ import { BlogRepository } from './blogs/infrastructure/blog.repository';
 import { BlogQueryRepository } from './blogs/infrastructure/blog.query.repository';
 import { PostRepository } from './posts/infrastructure/post.repository';
 import { PostQueryRepository } from './posts/infrastructure/post.query.repository';
-/*import {
-  CommentLikes,
-  CommentLikesSchema,
-  PostLikes,
-  PostLikesSchema,
-} from '../likes/domain/like.entity';
-import { Comment, CommentSchema } from './comments/domain/comment.entity';*/
 import { CommentQueryRepository } from './comments/infrastructure/comment.query.repository';
 import { CommentController } from './comments/api/comment.controller';
 import { BasicStrategy } from '../../common/strategies/basic.strategy';
@@ -31,6 +24,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blogs/domain/blog.orm.entity';
 import { Post } from './posts/domain/post.orm.entity';
 import { PostLike } from '../likes/domain/postLikes.orm.entity';
+import { Comment } from './comments/domain/comment.orm.entity';
+import { CommentLike } from '../likes/domain/commentLikes.orm.entity';
 
 const blogProviders: Provider[] = [
   BlogService,
@@ -52,7 +47,7 @@ const commentProviders: Provider[] = [
   imports: [
     AuthModule,
     UserModule,
-    TypeOrmModule.forFeature([Blog, Post, PostLike]),
+    TypeOrmModule.forFeature([Blog, Post, PostLike, Comment, CommentLike]),
   ],
   controllers: [
     PublicBlogController,
