@@ -12,8 +12,8 @@ export class CommentService {
   async createComment(content: string, userId: string, postId: string) {
     const dto = {
       content,
-      userIdFk: userId,
-      postIdFk: postId,
+      userId,
+      postId,
     };
     const newComment = Comment.createComment(dto);
     console.log('Comment dto inside service: ', newComment);

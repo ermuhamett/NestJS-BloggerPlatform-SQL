@@ -22,9 +22,9 @@ export class CommentRepository {
         'Successful saved comment in database by id: ',
         savedComment.commentId,
       );
+      return savedComment.commentId;
     } catch (error) {
-      console.error(`Failed to create blog with error: ${error}`);
-      return false;
+      console.error(`Failed to create comment with error: ${error}`);
     }
   }
   async find(commentId: string) {

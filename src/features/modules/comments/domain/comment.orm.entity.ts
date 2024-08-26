@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -27,9 +28,11 @@ export class Comment {
   createdAt: string;
 
   @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' }) // Указываем, что связь через столбец userId
   user: User;
 
   @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'postId' }) // Указываем, что связь через столбец postId
   post: Post;
 
   // Добавляем связь с CommentLike

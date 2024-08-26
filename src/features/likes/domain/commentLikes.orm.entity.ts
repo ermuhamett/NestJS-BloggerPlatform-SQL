@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../../users/domain/user.orm.entity';
 import { Comment } from '../../modules/comments/domain/comment.orm.entity';
 
@@ -20,9 +26,11 @@ export class CommentLike {
   createdAt: string;
 
   @ManyToOne(() => User, (user) => user.commentLikes, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'authorId' }) // Указываем, что связь через столбец authorId
   author: User;
 
   @ManyToOne(() => Comment, (comment) => comment.likes, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'parentId' }) // Указываем, что связь через столбец authorId
   parent: Comment;
   static createLikeForComment(data: Partial<CommentLike>) {
     if (data) {
