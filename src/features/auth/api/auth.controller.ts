@@ -37,7 +37,7 @@ import { LogoutCommand } from '../application/usecases/logout-user-usecase';
 
 @ApiTags('Auth')
 @Controller('auth')
-@UseGuards(ThrottlerGuard) // Применение на уровне контроллера
+//@UseGuards(ThrottlerGuard) // Применение на уровне контроллера
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,

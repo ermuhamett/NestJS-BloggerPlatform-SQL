@@ -3,7 +3,7 @@ import { Post } from '../../modules/posts/domain/post.orm.entity';
 import { User } from '../../users/domain/user.orm.entity';
 
 @Entity()
-export class PostLikes {
+export class PostLike {
   @PrimaryColumn('uuid')
   postId: string;
 
@@ -30,8 +30,8 @@ export class PostLikes {
   @ManyToOne(() => User, (user) => user.postLikes, { onDelete: 'CASCADE' })
   user: User;
 
-  static createLikeForPost(dto: Partial<PostLikes>) {
-    const postLike = new PostLikes();
+  static createLikeForPost(dto: Partial<PostLike>) {
+    const postLike = new PostLike();
     if (dto) {
       postLike.postId = dto.postId;
       postLike.likedUserId = dto.likedUserId;

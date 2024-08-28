@@ -12,7 +12,9 @@ import {
 import { EmailConfirmation } from './email-confirmation.orm.entity';
 import { UserCreateDto } from '../api/models/input/create-user.input.model';
 import { Session } from '../../security/domain/security.orm.entity';
-import { PostLikes } from '../../likes/domain/postLikes.orm.entity';
+import { PostLike } from '../../likes/domain/postLikes.orm.entity';
+import { Comment } from '../../modules/comments/domain/comment.orm.entity';
+import { CommentLike } from '../../likes/domain/commentLikes.orm.entity';
 
 @Entity()
 export class User {
@@ -39,12 +41,17 @@ export class User {
   sessions: Session[];
 
   // Add this relation to PostLikes
-  @OneToMany(() => PostLikes, (postLikes) => postLikes.likedUserId)
-  postLikes: PostLikes[];
+  @OneToMany(() => PostLike, (postLikes) => postLikes.likedUserId)
+  postLikes: PostLike[];
 
-  // If you also need the relationship for CommentLikes
-  //@OneToMany(() => CommentLikes, (commentLikes) => commentLikes.author)
-  //commentLikes: CommentLikes[];
+  // Добавляем связь с Comment
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
+
+  //Добавляем связь с CommentLikes
+  @OneToMany(() => CommentLike, (commentLikes) => commentLikes.author)
+  commentLikes: CommentLike[];
+
   static create(userDto: UserCreateDto, passwordHash: string): User {
     const user = new User();
     user.login = userDto.login;

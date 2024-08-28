@@ -2,10 +2,8 @@ import { UserCreateDto } from '../src/features/users/api/models/input/create-use
 import { LoginInputDto } from '../src/features/auth/api/models/input/create-auth.input.model';
 import { INestApplication } from '@nestjs/common';
 import { AuthTestManger } from './utils/auth.test.manger';
-import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { EmailService } from '../src/base/adapters/email/email.service';
-import { applyAppSettings } from '../src/settings/apply-app-setting';
 import { useContainer } from 'class-validator';
 import request from 'supertest';
 import { initSettings } from './utils/init-testings';

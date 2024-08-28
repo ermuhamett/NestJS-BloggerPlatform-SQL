@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Post } from '../domain/post.orm.entity';
-import { PostLikes } from '../../../likes/domain/postLikes.orm.entity';
+import { PostLike } from '../../../likes/domain/postLikes.orm.entity';
 
 @Injectable()
 export class PostRepository {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
-    @InjectRepository(PostLikes)
-    private readonly postLikesRepository: Repository<PostLikes>,
+    @InjectRepository(PostLike)
+    private readonly postLikesRepository: Repository<PostLike>,
   ) {}
 
   async insertPost(postData: Post) {
@@ -58,7 +58,7 @@ export class PostRepository {
   }
 
   //TODO Надо дописать данный метод так как уже есть сущность лайки для поста
-  async updatePostLikes(updateModel: PostLikes) {
+  async updatePostLikes(updateModel: PostLike) {
     // Пытаемся найти существующую запись в базе данных
     const existingLike = await this.postLikesRepository.findOne({
       where: {

@@ -6,32 +6,40 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../users/domain/user.orm.entity';
+import { Comment } from '../../modules/comments/domain/comment.orm.entity';
 
-/*@Entity()
-export class CommentLikes {
+@Entity()
+export class CommentLike {
   @PrimaryGeneratedColumn('uuid')
   likeId: string; // PK
 
+  @Column({ type: 'uuid' })
+  authorId: string;
+
+  @Column({ type: 'uuid' })
+  parentId: string;
+
+  @Column({ type: 'varchar', length: 255 })
+  status: string;
+
+  @Column({ type: 'timestamp' })
+  createdAt: string;
+
   @ManyToOne(() => User, (user) => user.commentLikes, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'authorId' })
+  @JoinColumn({ name: 'authorId' }) // Указываем, что связь через столбец authorId
   author: User;
 
   @ManyToOne(() => Comment, (comment) => comment.likes, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'parentId' })
+  @JoinColumn({ name: 'parentId' }) // Указываем, что связь через столбец authorId
   parent: Comment;
-
-  @Column({ length: 255 })
-  status: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: string;
-
-  constructor(data: Partial<CommentLikes>) {
+  static createLikeForComment(data: Partial<CommentLike>) {
     if (data) {
-      this.author = data.author;
-      this.parent = data.parent;
-      this.status = data.status;
-      this.createdAt = data.createdAt ?? new Date().toISOString();
+      const newCommentLike = new CommentLike();
+      newCommentLike.authorId = data.authorId;
+      newCommentLike.parentId = data.parentId;
+      newCommentLike.status = data.status;
+      newCommentLike.createdAt = data.createdAt ?? new Date().toISOString();
+      return newCommentLike;
     }
   }
-}*/
+}

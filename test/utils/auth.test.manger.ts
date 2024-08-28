@@ -2,7 +2,6 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { UserCreateDto } from '../../src/features/users/api/models/input/create-user.input.model';
 import request from 'supertest';
 import { LoginInputDto } from '../../src/features/auth/api/models/input/create-auth.input.model';
-import { Response } from 'express';
 
 export class AuthTestManger {
   constructor(protected readonly app: INestApplication) {}
