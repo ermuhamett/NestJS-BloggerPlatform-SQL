@@ -32,7 +32,7 @@ export const initSettings = async (
   //const userTestManger = new UsersTestManager(app);
 
   //чистим БД
-  await deleteAllData(databaseConnection);
+  //await deleteAllData(databaseConnection);
 
   return {
     app,

@@ -1,7 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { User, UserDocument } from '../domain/user.entity';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 import {
   UserMapper,
   UserOutputDto,
@@ -11,7 +8,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
 @Injectable()
-export class UserQueryRepository {
+export class UserQueryRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async getUserById(userId: string): Promise<UserOutputDto> {

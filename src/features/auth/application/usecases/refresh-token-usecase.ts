@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../../users/infrastructure/user.repository';
+import { UserRepositorySql } from '../../../users/infrastructure/user.repository';
 import { SecurityService } from '../../../security/application/security.service';
 import { JwtService } from '../../../../base/adapters/auth/jwt.service';
 import { UnauthorizedException } from '@nestjs/common';

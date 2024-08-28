@@ -14,7 +14,7 @@ export class PostCreateDto {
   content: string;
 
   @IsString()
-  @IsMongoId()
+  //@IsMongoId()
   @IsBlogIdExists()
   blogId: string;
 }

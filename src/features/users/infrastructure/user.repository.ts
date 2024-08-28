@@ -5,7 +5,7 @@ import { EmailConfirmation, User } from '../domain/user.sql.entity';
 import { UserMapper } from '../api/models/output/user.output.model';
 
 @Injectable()
-export class UserRepository {
+export class UserRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   /*private mapToUser(userRow: any): User {

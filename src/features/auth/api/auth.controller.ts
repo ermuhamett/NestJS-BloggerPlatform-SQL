@@ -22,7 +22,7 @@ import {
 import { Response } from 'express';
 import { UserCreateDto } from '../../users/api/models/input/create-user.input.model';
 import { AuthGuard } from '@nestjs/passport';
-import { UserQueryRepository } from '../../users/infrastructure/user.query.repository';
+import { UserQueryRepositorySql } from '../../users/infrastructure/user.query.repository';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { CommandBus } from '@nestjs/cqrs';
 import { LoginCommand } from '../application/usecases/login-user-usecase';
@@ -41,7 +41,7 @@ import { LogoutCommand } from '../application/usecases/logout-user-usecase';
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly userQueryRepository: UserQueryRepository,
+    private readonly userQueryRepository: UserQueryRepositorySql,
   ) {}
 
   @Post('login')
