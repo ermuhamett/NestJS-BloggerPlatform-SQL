@@ -7,8 +7,9 @@ import {
 //import { Post } from '../domain/post.entity';
 import { BlogRepository } from '../../blogs/infrastructure/blog.repository';
 import { LikeStatus } from '../../../likes/api/models/likes.info.model';
-import { PostLikes } from '../../../likes/domain/like.entity';
+//import { PostLikes } from '../../../likes/domain/like.entity';
 import { Post } from '../domain/post.sql.entity';
+import { PostLikes } from '../../../likes/domain/like.sql.entity';
 
 @Injectable()
 export class PostService {
@@ -48,9 +49,10 @@ export class PostService {
     const updatePostLike = new PostLikes({
       postId,
       status,
-      userId,
-      userLogin,
+      likedUserId: userId,
+      likedUserLogin: userLogin,
     });
+    console.log('Post like object inside of service: ', updatePostLike);
     await this.postRepository.updatePostLike(updatePostLike);
   }
   async updatePostById(

@@ -18,7 +18,7 @@ export class CommentOwnershipGuard implements CanActivate {
       throw new ForbiddenException();
     }
     const userId = user.userId; // user.userId вместо userId
-    if (comment.commentatorInfo.userId !== userId.toString()) {
+    if (comment.userId !== userId) {
       throw new ForbiddenException();
     }
     return true;

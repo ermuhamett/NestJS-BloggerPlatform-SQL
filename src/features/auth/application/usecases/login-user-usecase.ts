@@ -43,7 +43,6 @@ export class LoginUserUseCase implements ICommandHandler<LoginCommand> {
       user.userId.toString(),
       deviceId,
     );
-    //TODO Надо создать таблицу сессии, думаю можно сделать через не создав отдельный репу, короче надо думать
     await this.securityService.createAuthSession(
       refreshToken,
       user.userId.toString(),

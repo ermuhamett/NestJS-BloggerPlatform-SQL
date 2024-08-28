@@ -46,20 +46,25 @@ export class PostRepository {
     }
   }
   //TODO Возможно в будущем придется два find писать. Один будет работать по blogId и postId а другой по postId только
-  async find(postId: string, blogId: string) {
-    const result = await this.dataSource.query(
-      `
-          SELECT p.*, b.name
-          FROM "Posts" p
-          LEFT JOIN "Blogs" b ON p."blogIdFk" = b."blogId"
-          WHERE p."postId" = $1 AND p."blogIdFk" = $2
-        `,
-      [postId, blogId],
-    );
-    if (result.length === 0) {
-      return null; // Возвращаем null, если пользователь не найден
+  async find(postId: string, blogId?: string) {
+    let query = `
+    SELECT p.*, b.name
+    FROM "Posts" p
+    LEFT JOIN "Blogs" b ON p."blogIdFk" = b."blogId"
+    WHERE p."postId" = $1
+  `;
+    // Добавляем условие для blogId, если оно предоставлено
+    const params = [postId];
+    if (blogId) {
+      query += ` AND p."blogIdFk" = $2`;
+      params.push(blogId);
     }
-    //console.log('Post result in find method: ', result[0]);
+    const result = await this.dataSource.query(query, params);
+
+    if (result.length === 0) {
+      return null; // Возвращаем null, если пост не найден
+    }
+
     return result[0];
   }
 
@@ -104,42 +109,29 @@ export class PostRepository {
       throw new Error(`Failed to update blog with error: ${error.message}`);
     }
   }
+  //TODO Не создается запись в базе данных, возможно нужно изменить структуры как в комментах
   async updatePostLike(updateModel: PostLikes) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     try {
-      const result = await queryRunner.query(
+      await queryRunner.query(
         `
-            UPDATE "PostLikes"
-            SET "likedUserLogin" = $1, "addedAt" = $2, "status" = $3
-            WHERE "postId" = $4 AND "likedUserId" = $5
-            RETURNING "postId", "likedUserId"
-            `,
+      INSERT INTO "PostLikes" ("postId", "likedUserId", "likedUserLogin", "addedAt", "status")
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT ("postId", "likedUserId")
+      DO UPDATE SET
+        "likedUserLogin" = EXCLUDED."likedUserLogin",
+        "addedAt" = EXCLUDED."addedAt",
+        "status" = EXCLUDED."status"
+      `,
         [
+          updateModel.postId,
+          updateModel.likedUserId,
           updateModel.likedUserLogin,
           updateModel.addedAt,
           updateModel.status,
-          updateModel.postId,
-          updateModel.likedUserId,
         ],
       );
-
-      if (result.length === 0) {
-        await queryRunner.query(
-          `
-                INSERT INTO "PostLikes" ("postId", "likedUserId", "likedUserLogin", "addedAt", "status")
-                VALUES ($1, $2, $3, $4, $5)
-                `,
-          [
-            updateModel.postId,
-            updateModel.likedUserId,
-            updateModel.likedUserLogin,
-            updateModel.addedAt,
-            updateModel.status,
-          ],
-        );
-      }
-
       await queryRunner.commitTransaction();
       return true; // Возвращаем true, если операция успешна
     } catch (error) {

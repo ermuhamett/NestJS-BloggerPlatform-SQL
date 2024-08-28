@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   Put,
@@ -19,11 +20,13 @@ import { CommentExistenceGuard } from '../../../../common/guards/comment.existen
 import { CommentService } from '../application/comment.service';
 import { CommentOwnershipGuard } from '../../../../common/guards/comment.ownership.guard';
 import { OptionalAuthGuard } from '../../../../common/guards/optional.auth.guard';
+import { CommentRepository } from '../infrastructure/comment.repository';
 
 ApiTags('Comments');
 @Controller('comments')
 export class CommentController {
   constructor(
+    private readonly commentRepository: CommentRepository,
     private readonly commentQueryRepository: CommentQueryRepository,
     private readonly commentService: CommentService,
   ) {}
@@ -41,7 +44,7 @@ export class CommentController {
       commentId,
       req.user.userId,
       likeDto,
-    ); //ready not testing
+    );
   }
   @UseGuards(AuthGuard('jwt'), CommentExistenceGuard, CommentOwnershipGuard)
   // Проверка токена должна быть первой
@@ -57,17 +60,26 @@ export class CommentController {
     await this.commentService.updateCommentById(commentId, commentDto);
   }
 
+  //TODO нужно поставить проверку на то что существует ли данный комментарий в базе или нет как в постах
   @UseGuards(AuthGuard('jwt'), CommentExistenceGuard, CommentOwnershipGuard)
   //Все guard надо написать внутри одной UseGuards
   @Delete(':commentId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteCommentById(@Param('commentId') commentId: string) {
+    const comment = await this.commentRepository.find(commentId);
+    if (!comment) {
+      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+    }
     await this.commentService.deleteCommentById(commentId);
   }
   @UseGuards(OptionalAuthGuard)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getCommentById(@Request() req, @Param('id') id: string) {
+    const comment = await this.commentRepository.find(id);
+    if (!comment) {
+      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+    }
     return await this.commentQueryRepository.getCommentById(id, req.userId);
   }
 }

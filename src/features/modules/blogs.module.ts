@@ -49,13 +49,13 @@ const commentProviders: Provider[] = [
 ];
 @Module({
   imports: [
-    MongooseModule.forFeature([
+    /*MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: PostLikes.name, schema: PostLikesSchema },
       { name: Comment.name, schema: CommentSchema },
       { name: CommentLikes.name, schema: CommentLikesSchema },
-    ]),
+    ]),*/
     AuthModule,
     UserModule,
   ],

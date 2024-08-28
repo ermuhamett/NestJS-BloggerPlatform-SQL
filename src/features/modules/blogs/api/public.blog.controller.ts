@@ -10,10 +10,8 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { BlogService } from '../application/blog.service';
 import { BlogRepository } from '../infrastructure/blog.repository';
 import { BlogQueryRepository } from '../infrastructure/blog.query.repository';
-import { PostService } from '../../posts/application/post.service';
 import { PostQueryRepository } from '../../posts/infrastructure/post.query.repository';
 import { OptionalAuthGuard } from '../../../../common/guards/optional.auth.guard';
 import {
@@ -25,10 +23,8 @@ import {
 @Controller('blogs')
 export class PublicBlogController {
   constructor(
-    private blogService: BlogService,
     private blogRepository: BlogRepository,
     private blogQueryRepository: BlogQueryRepository,
-    private postService: PostService,
     private postQueryRepository: PostQueryRepository,
   ) {}
 

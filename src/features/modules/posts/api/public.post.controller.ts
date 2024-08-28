@@ -1,5 +1,6 @@
 import { ApiTags } from '@nestjs/swagger';
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -7,6 +8,8 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Post,
+  Put,
   Query,
   Request,
   UseGuards,
@@ -22,6 +25,9 @@ import {
   QueryInputType,
   QueryParams,
 } from '../../../../base/adapters/query/query.class';
+import { AuthGuard } from '@nestjs/passport';
+import { LikeInputDto } from '../../../likes/api/models/likes.info.model';
+import { CommentCreateDto } from '../../comments/api/models/input/comment.input.model';
 
 @ApiTags('Public Posts')
 @Controller('posts')
@@ -31,9 +37,12 @@ export class PublicPostController {
     private postRepository: PostRepository,
     private postQueryRepository: PostQueryRepository,
     private commentQueryRepository: CommentQueryRepository,
+    private userRepository: UserRepositorySql,
+    private postService: PostService,
+    private commentService: CommentService,
   ) {}
-
-  /*@UseGuards(OptionalAuthGuard)
+  //Return comments for posts
+  @UseGuards(OptionalAuthGuard)
   @Get(':postId/comments')
   @HttpCode(HttpStatus.OK)
   async getCommentsForPost(
@@ -51,14 +60,58 @@ export class PublicPostController {
       postId,
       req.userId,
     );
-  }*/
+  }
+  //Like for the post
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePostLikeStatus(
+    @Request() req,
+    @Param('postId') postId: string,
+    @Body() likeDto: LikeInputDto,
+  ) {
+    const post = await this.postRepository.find(postId);
+    const user = await this.userRepository.find(req.user.userId);
+    if (!post) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    return await this.postService.createLikePost(
+      postId,
+      likeDto.likeStatus,
+      user.userId, //Обновлено
+      user.login,
+    );
+  }
+
+  //Create comment for post
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':postId/comments')
+  @HttpCode(HttpStatus.CREATED)
+  async createCommentByPost(
+    @Request() req,
+    @Param('postId') postId: string,
+    @Body() commentDto: CommentCreateDto,
+  ) {
+    const post = await this.postRepository.find(postId);
+    const user = await this.userRepository.find(req.user.userId);
+    if (!post) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const newCommentId = await this.commentService.createComment(
+      commentDto.content,
+      user.userId,
+      postId,
+    );
+    return await this.commentQueryRepository.getCommentById(
+      newCommentId,
+      user.userId,
+    );
+  }
   @UseGuards(OptionalAuthGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
   async getPostsWithPaging(@Query() query: QueryInputType, @Request() req) {
-    //const user = await this.userRepository.find(req.userId);
     const sanitizedQuery = new QueryParams(query).sanitize();
-    console.log('UserId in controller: ', req.userId);
     return await this.postQueryRepository.getPostsWithPaging(
       sanitizedQuery,
       '',
@@ -71,7 +124,7 @@ export class PublicPostController {
   async getPostById(@Param('id') id: string, @Request() req) {
     const post = await this.postQueryRepository.getPostById(id, req.userId);
     if (!post) {
-      throw new NotFoundException(`Post with ID ${id} not found`);
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     return post;
   }

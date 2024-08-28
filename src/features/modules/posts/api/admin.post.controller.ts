@@ -26,7 +26,6 @@ import { PostCreateDto } from './models/input/post.input.model';
 @ApiTags('Admin Posts')
 @Controller('sa/posts')
 export class AdminPostController {
-  //TODO Надо по сваггеру проверить роуты
   constructor(
     private postService: PostService,
     private commentService: CommentService,
@@ -35,49 +34,7 @@ export class AdminPostController {
     private commentQueryRepository: CommentQueryRepository,
     private userRepository: UserRepositorySql,
   ) {}
-  /*@UseGuards(AuthGuard('jwt'))
-  @Put(':postId/like-status')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async updatePostLikeStatus(
-    @Request() req,
-    @Param('postId') postId: string,
-    @Body() likeDto: LikeInputDto,
-  ) {
-    const post = await this.postRepository.find(postId);
-    const user = await this.userRepository.find(req.user.userId);
-    if (!post) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-    }
-    return await this.postService.createLikePost(
-      postId,
-      likeDto.likeStatus,
-      user.userId.toString(), //Обновлено
-      user.login,
-    );
-  }*/
-  /*@UseGuards(AuthGuard('jwt'))
-  @Post(':postId/comments')
-  @HttpCode(HttpStatus.CREATED)
-  async createCommentByPost(
-    @Request() req,
-    @Param('postId') postId: string,
-    @Body() commentDto: CommentCreateDto,
-  ) {
-    const post = await this.postRepository.find(postId);
-    const user = await this.userRepository.find(req.user.userId);
-    if (!post) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-    }
-    const newCommentId = await this.commentService.createComment(
-      commentDto.content,
-      { id: user.userId.toString(), login: user.login },
-      postId,
-    );
-    return await this.commentQueryRepository.getCommentById(
-      newCommentId,
-      user.userId.toString(),
-    );
-  }*/
+
   @UseGuards(AuthGuard('basic'))
   @Post()
   @HttpCode(HttpStatus.CREATED)

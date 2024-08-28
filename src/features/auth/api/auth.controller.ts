@@ -89,14 +89,12 @@ export class AuthController {
     return await this.commandBus.execute(
       new ConfirmUserCommand(confirmationDto.code),
     );
-    //return await this.authService.confirmUser(confirmationDto.code); //done, not tested
   }
 
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(@Body() userCreateDto: UserCreateDto) {
     return await this.commandBus.execute(new RegisterCommand(userCreateDto));
-    //return await this.authService.registerUser(userCreateDto); //done, worked
   }
 
   @Post('registration-email-resending')
@@ -107,20 +105,14 @@ export class AuthController {
     return await this.commandBus.execute(
       new ResendingEmailCommand(resendingDto.email),
     );
-    //return await this.authService.resendingEmail(resendingDto.email);
   }
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async refreshToken(@Req() req, @Res({ passthrough: true }) res: Response) {
-    //const oldRefreshToken = req.cookies.refreshToken;
-    /*const userId = req.user.id; // Здесь мы получаем userId, который добавил Guard
-    const deviceId = req.deviceId;*/
     console.log('Token data in request: ', req.tokenData);
     const { userId, deviceId, createdAt } = req.tokenData;
-    //console.log('UserId: ', userId);
-    //console.log('DeviceId: ', deviceId);
     const tokens = await this.commandBus.execute(
       new RefreshTokenCommand(userId, deviceId, createdAt),
     );
@@ -135,8 +127,6 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Req() req, @Res({ passthrough: true }) res: Response) {
-    /*const userId = req.user.id;
-    const deviceId = req.deviceId;*/
     const { userId, deviceId, createdAt } = req.tokenData;
     await this.commandBus.execute(
       new LogoutCommand(userId, deviceId, createdAt),
