@@ -3,105 +3,62 @@ import {
   BlogMapper,
   BlogOutputDto,
 } from '../api/models/output/blog.output.model';
-import { QueryOutputType } from '../../../../base/adapters/query/query.class';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import {
+  PagingResult,
+  QueryOutputType,
+} from '../../../../base/adapters/query/query.class';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ILike, Repository } from 'typeorm';
+import { Blog } from '../domain/blog.orm.entity';
 
 @Injectable()
 export class BlogQueryRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Blog)
+    private readonly blogQueryRepository: Repository<Blog>,
+  ) {}
 
-  async getBlogById(blogId: string): Promise<BlogOutputDto> {
-    const blog = await this.dataSource.query(
-      `
-      SELECT *
-      FROM "Blogs"
-      WHERE "blogId" = $1
-    `,
-      [blogId],
-    );
-    if (blog.length === 0) {
-      return null;
-    }
-    //console.log('Blog data in getBlogById: ', blog[0]);
-    return BlogMapper.toView(blog[0]);
-  }
-  async getBlogsWithPaging(query: QueryOutputType) {
-    // Подготовка условий поиска
-    const searchCondition = query.searchNameTerm ? `WHERE "name" ILIKE $1` : '';
-    // Подготовка параметров для поиска
-    const searchParams = query.searchNameTerm
-      ? [`%${query.searchNameTerm}%`]
-      : [];
-    // Подсчет общего количества записей
-    const totalCountResult = await this.dataSource.query(
-      `SELECT COUNT(*) FROM "Blogs" ${searchCondition}`,
-      searchParams,
-    );
-    const totalCount = parseInt(totalCountResult[0].count, 10);
-    const pageCount = Math.ceil(totalCount / query.pageSize);
-    // Подготовка сортировки, пропуска и лимита
-    const sortColumn =
-      query.sortBy === 'createdAt' ? 'createdAtBlog' : query.sortBy; // Используем createdAtBlog, если sortBy равно 'createdAt'
-    const sortCondition = `"${sortColumn}" ${query.sortDirection}`;
-    const offset = (query.pageNumber - 1) * query.pageSize;
-    const limit = query.pageSize;
-    try {
-      // Получение записей с учетом поиска, сортировки, пропуска и лимита
-      const itemsQuery = `
-      SELECT * FROM "Blogs" 
-      ${searchCondition} 
-      ORDER BY ${sortCondition} 
-      OFFSET $${searchCondition ? 2 : 1} 
-      LIMIT $${searchCondition ? 3 : 2}`;
-      const itemsParams = searchCondition
-        ? [...searchParams, offset, limit]
-        : [offset, limit];
-
-      const items = await this.dataSource.query(itemsQuery, itemsParams);
-      return {
-        pagesCount: pageCount,
-        page: query.pageNumber,
-        pageSize: query.pageSize,
-        totalCount: totalCount,
-        items: items.map(BlogMapper.toView),
-      };
-    } catch (e) {
-      console.error('Error in getBlogsWithPaging:', e.message);
-      throw new Error('Failed to fetch blogs with paging');
-    }
-  }
-  /*constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
-
-  async getBlogById(blogId: string): Promise<BlogOutputDto | boolean> {
-    const blog = await this.blogModel.findOne({ _id: blogId });
+  async getBlogById(blogId: string) {
+    const blog = await this.blogQueryRepository.findOne({ where: { blogId } });
     if (!blog) {
-      throw new NotFoundException('Blog not found');
+      return null; // Если блог не найден, возвращаем null
     }
+    // Преобразуем найденный блог в формат представления
     return BlogMapper.toView(blog);
   }
-  async getBlogsWithPaging(query: QueryOutputType) {
-    const search = query.searchNameTerm
-      ? { name: { $regex: query.searchNameTerm, $options: 'i' } }
-      : {};
-    const totalCount = await this.blogModel.countDocuments(search);
-    const pageCount = Math.ceil(totalCount / query.pageSize);
-    try {
-      const items: BlogDocument[] = await this.blogModel
-        .find(search)
-        .sort({ [query.sortBy]: query.sortDirection })
-        .skip((query.pageNumber - 1) * query.pageSize)
-        .limit(query.pageSize);
-      return {
-        pagesCount: pageCount,
-        page: query.pageNumber,
-        pageSize: query.pageSize,
-        totalCount: totalCount,
-        items: items.map(BlogMapper.toView),
-      };
-    } catch (e) {
-      console.log(e);
-      throw new Error(e);
-    }
-  }*/
+
+  async getBlogsWithPaging(
+    query: QueryOutputType,
+  ): Promise<PagingResult<BlogOutputDto>> {
+    // Предварительные расчеты и настройки
+    const searchNameTerm = query.searchNameTerm ?? '';
+    const sortBy = query.sortBy;
+    const sortDirection = query.sortDirection === 'asc' ? 'ASC' : 'DESC';
+    const offset = (query.pageNumber - 1) * query.pageSize;
+    const limit = query.pageSize;
+
+    // Фильтрация по имени
+    const where = searchNameTerm ? { name: ILike(`%${searchNameTerm}%`) } : {};
+    // Подсчет общего количества записей
+    const totalCount = await this.blogQueryRepository.count({ where });
+    // Подсчет количества страниц
+    const pagesCount = Math.ceil(totalCount / limit);
+
+    const items = await this.blogQueryRepository.find({
+      where,
+      order: {
+        [sortBy]: sortDirection,
+      },
+      skip: offset,
+      take: limit,
+    });
+    // Формирование результата с использованием BlogMapper
+    return {
+      pagesCount,
+      page: query.pageNumber,
+      pageSize: query.pageSize,
+      totalCount: totalCount,
+      items: items.map(BlogMapper.toView),
+    };
+  }
 }

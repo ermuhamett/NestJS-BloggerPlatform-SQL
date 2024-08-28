@@ -1,5 +1,4 @@
-import { BlogDocument } from '../../../domain/blog.entity';
-import { Blog } from '../../../domain/blog.sql.entity';
+import { Blog } from '../../../domain/blog.orm.entity';
 
 export class BlogOutputDto {
   constructor(
@@ -19,7 +18,7 @@ export class BlogMapper {
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,
-      createdAt: blog.createdAtBlog,
+      createdAt: blog.createdAt,
       isMembership: blog.isMembership,
     };
   }

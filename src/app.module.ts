@@ -11,7 +11,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { BlogExistConstraint } from './common/decorators/validate/blogIdValidate';
 import { SecurityModule } from './features/security/api/security.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import AppDataSource from './settings/typeorm.config';
+import { AppDataSource } from './typeorm.config';
 
 @Module({
   // Регистрация модулей

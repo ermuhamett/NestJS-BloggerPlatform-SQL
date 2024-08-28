@@ -1,10 +1,9 @@
-import { PostDocument } from '../../../domain/post.entity';
 import {
   ExtendedLikesInfo,
   NewestLike,
 } from '../../../../../likes/api/models/likes.info.model';
-import { PostLikesDocument } from '../../../../../likes/domain/like.entity';
-import { Post } from '../../../domain/post.sql.entity';
+import { Post } from '../../../domain/post.orm.entity';
+import { PostLikes } from '../../../../../likes/domain/postLikes.orm.entity';
 
 export class PostOutputDto {
   constructor(
@@ -27,16 +26,16 @@ export class PostMapper {
       title: post.title,
       shortDescription: post.shortDescription,
       content: post.content,
-      blogId: post.blogIdFk,
-      blogName: post.name,
-      createdAt: post.createdAtPost, // Добавляем createdAt,
+      blogId: post.blog.blogId, //TODO тут надо тестить возможно каст не сработает, то есть проверить через console.log
+      blogName: post.blog.name,
+      createdAt: post.createdAt, // Добавляем createdAt,
       extendedLikesInfo: likes,
     };
   }
 }
 
 export class NewestLikesMapper {
-  public static toView(like: PostLikesDocument): NewestLike {
+  public static toView(like: PostLikes): NewestLike {
     return {
       addedAt: like.addedAt,
       userId: like.likedUserId,

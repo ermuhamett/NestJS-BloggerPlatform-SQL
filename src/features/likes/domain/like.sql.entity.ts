@@ -20,7 +20,7 @@ export class CommentLikes {
   parentId: string;
   status: string;
   createdAt: string;
-  constructor(data: CommentLikes) {
+  constructor(data: Partial<CommentLikes>) {
     this.authorId = data.authorId;
     this.parentId = data.parentId;
     this.status = data.status;

@@ -1,4 +1,4 @@
-export class Blog {
+/*export class Blog {
   blogId: string; //PK
   name: string;
   description: string;
@@ -28,4 +28,4 @@ export class Blog {
       this.isMembership = updatedData.isMembership;
     }
   }
-}
+}*/

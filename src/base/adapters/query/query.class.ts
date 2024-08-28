@@ -18,6 +18,14 @@ export type QueryOutputType = {
   searchEmailTerm: string | null;
 };
 
+export type PagingResult<T> = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: T[];
+};
+
 export class QueryParams {
   pageNumber: number;
   pageSize: number;

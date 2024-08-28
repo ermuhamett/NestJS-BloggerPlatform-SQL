@@ -2,10 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment, CommentDocument } from '../domain/comment.entity';
 import { Model } from 'mongoose';
-import {
-  CommentLikes,
-  CommentLikesDocument,
-} from '../../../likes/domain/like.entity';
 import { CommentMapper } from '../api/models/output/comment.output.model';
 import {
   LikesInfo,

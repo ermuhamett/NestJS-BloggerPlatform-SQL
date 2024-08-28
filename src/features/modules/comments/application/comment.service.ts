@@ -6,9 +6,9 @@ import {
   LikeInputDto,
   LikeStatus,
 } from '../../../likes/api/models/likes.info.model';
-import { CommentLikes } from '../../../likes/domain/like.entity';
 import { CommentCreateDto } from '../api/models/input/comment.input.model';
 import { Comment } from '../domain/comment.sql.entity';
+import { CommentLikes } from '../../../likes/domain/like.sql.entity';
 
 @Injectable()
 export class CommentService {

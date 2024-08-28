@@ -61,11 +61,11 @@ export class AdminBlogController {
     @Param('id') id: string,
     @Body() blogDto: BlogCreateDto,
   ) {
-    const blog = await this.blogRepository.find(id);
+    /*const blog = await this.blogRepository.find(id);
     console.log('Blog inside put controller: ', blog);
     if (!blog) {
       throw new HttpException('Blog not found', HttpStatus.NOT_FOUND);
-    }
+    }*/
     await this.blogService.updateBlogById(id, blogDto);
   }
   @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{id} delete
@@ -78,17 +78,13 @@ export class AdminBlogController {
     }
     await this.blogService.deleteBlogById(id);
   }
-  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{blogId}/posts  post
+  @UseGuards(AuthGuard('basic')) ///hometask_18/api/sa/blogs/{blogId}/posts  POST
   @Post(':blogId/posts')
   @HttpCode(HttpStatus.CREATED)
   async createPostForBlog(
     @Param('blogId') blogId: string,
     @Body() postDto: BlogPostCreateDto,
   ) {
-    const blog = await this.blogRepository.find(blogId);
-    if (!blog) {
-      throw new HttpException('Blog not found', HttpStatus.NOT_FOUND);
-    }
     const createdPostId = await this.postService.createPost({
       ...postDto,
       blogId,
