@@ -5,9 +5,12 @@ import { UserRepositorySql } from '../infrastructure/user.repository';
 import { UserQueryRepositorySql } from '../infrastructure/user.query.repository';
 import { UserController } from './user.controller';
 import { BasicStrategy } from '../../../common/strategies/basic.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../domain/user.orm.entity';
+import { EmailConfirmation } from '../domain/email-confirmation.orm.entity';
 
 @Module({
-  imports: [BcryptModule],
+  imports: [BcryptModule, TypeOrmModule.forFeature([User, EmailConfirmation])],
   providers: [
     BasicStrategy,
     UsersService,

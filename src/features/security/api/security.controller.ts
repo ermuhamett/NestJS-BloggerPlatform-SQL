@@ -28,7 +28,7 @@ export class SecurityController {
   @HttpCode(HttpStatus.OK)
   async getDevices(@Req() req) {
     return await this.securityQueryRepository.getDevices(
-      req.authSession.userIdFk,
+      req.authSession.user.userId,
     );
   }
 
@@ -37,7 +37,7 @@ export class SecurityController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async terminateAllSessions(@Req() req) {
     //const refreshToken = req.cookies.refreshToken;
-    const userId = req.authSession.userIdFk;
+    const userId = req.authSession.user.userId;
     const currentDeviceId = req.authSession.deviceId;
     await this.securityService.terminateAllOtherSessions(
       currentDeviceId,
@@ -51,11 +51,15 @@ export class SecurityController {
   async terminateSessionById(@Req() req, @Param('deviceId') deviceId: string) {
     const deletedAuthSession =
       await this.securityRepository.findSessionByDeviceId(deviceId);
-    //console.log('Deleted Auth Session info: ', deletedAuthSession);
+    console.log('Deleted Auth Session info: ', deletedAuthSession);
     if (!deletedAuthSession) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
-    if (deletedAuthSession.userIdFk !== req.authSession.userIdFk) {
+    console.log(
+      'User id inside authSession object in request: ',
+      req.authSession.user,
+    );
+    if (deletedAuthSession.user.userId !== req.authSession.user.userId) {
       throw new HttpException(
         'Try to delete other session',
         HttpStatus.FORBIDDEN,

@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { SecurityRepository } from '../infrastructure/security.repository';
 import { JwtService } from '@nestjs/jwt';
-import { Session } from '../domain/security.sql.entity';
+import { Session } from '../domain/security.orm.entity';
+//import { Session } from '../domain/security.sql.entity';
 //import { Session } from '../domain/security.entity';
 
 @Injectable()
@@ -23,17 +24,23 @@ export class SecurityService {
     ip: string,
   ) {
     const tokenData = await this.jwtService.decode(refreshToken);
-    const dto: Session = {
-      userIdFk: userId,
+    /*const dto: Session = {
+      userId,
       deviceId: tokenData.deviceId,
       deviceName,
       ip,
       createdAt: tokenData.iat,
       expirationDate: tokenData.exp,
-    };
-    console.log('DTO Session:', dto); // Добавьте логирование
-    const newSession = new Session(dto);
-    console.log('Session in db:', newSession);
+    };*/
+    const newSession = Session.create(
+      userId,
+      tokenData.deviceId,
+      deviceName,
+      ip,
+      tokenData.iat,
+      tokenData.exp,
+    );
+    console.log('DTO Session:', newSession); // Добавьте логирование
     await this.securityRepository.createSession(newSession);
   }
   async checkAuthSessionByRefreshToken(refreshToken: string) {

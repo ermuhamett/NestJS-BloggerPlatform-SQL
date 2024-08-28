@@ -1,29 +1,103 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, QueryRunner } from 'typeorm';
-import { EmailConfirmation, User } from '../domain/user.sql.entity';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UserMapper } from '../api/models/output/user.output.model';
+import { User } from '../domain/user.orm.entity';
+import { EmailConfirmation } from '../domain/email-confirmation.orm.entity';
 
 @Injectable()
 export class UserRepositorySql {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(EmailConfirmation)
+    private readonly emailConfirmationRepo: Repository<EmailConfirmation>,
+  ) {}
+  async insertUser(user: Partial<User>) {
+    try {
+      // Создаем EmailConfirmation и сохраняем его
+      const emailConfirmation = this.emailConfirmationRepo.create(
+        user.emailConfirmation,
+      );
+      const savedEmailConfirmation = await this.emailConfirmationRepo.save(
+        emailConfirmation,
+      );
 
-  /*private mapToUser(userRow: any): User {
-    const emailConfirmation = new EmailConfirmation();
-    emailConfirmation.initEmailConfirmationData(userRow);
-    const user = new User(
-      {
-        login: userRow.login,
-        email: userRow.email,
-      },
-      userRow.password_hash,
-    );
-    user.createdAt = userRow.created_at;
-    user.emailConfirmation = emailConfirmation;
-    user.userId = userRow.id; // Сохранение идентификатора пользователя в объекте User
+      // Создаем User и связываем его с сохраненным EmailConfirmation
+      user.emailConfirmation = savedEmailConfirmation;
+      const newUser = this.userRepo.create(user);
+      const savedUser = await this.userRepo.save(newUser);
 
+      return savedUser.userId;
+    } catch (error) {
+      console.error(`Failed to create user with error: ${error}`);
+      return false;
+    }
+  }
+  async find(userId: string): Promise<User> {
+    const user = await this.userRepo.findOne({
+      where: { userId },
+      relations: ['emailConfirmation'],
+    });
+    if (!user) {
+      return null;
+    }
+    //console.log('Found user object inside user repo: ', user);
     return user;
-  }*/
+  }
+  async save(user: User): Promise<User> {
+    return this.userRepo.save(user);
+  }
+  async findUserByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<User | null> {
+    const user = await this.userRepo.findOne({
+      where: {
+        emailConfirmation: {
+          confirmationCode: confirmationCode,
+        },
+      },
+      relations: ['emailConfirmation'],
+    });
+
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+  async findUserByRecoveryCode(recoveryCode: string) {
+    const user = await this.userRepo.findOne({
+      where: {
+        emailConfirmation: {
+          passwordRecoveryCode: recoveryCode,
+        },
+      },
+      relations: ['emailConfirmation'],
+    });
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+  async findByLoginOrEmail(loginOrEmail: string): Promise<User | null> {
+    const user = await this.userRepo.findOne({
+      where: [{ email: loginOrEmail }, { login: loginOrEmail }],
+      relations: ['emailConfirmation'],
+    });
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+  async deleteUserById(userId: string): Promise<boolean> {
+    try {
+      const result = await this.userRepo.delete(userId);
+      return result.affected > 0; // Возвращаем true, если удаление успешно
+    } catch (error) {
+      console.error(`Failed to delete user with error: ${error}`);
+      return false;
+    }
+  }
+  /*constructor(@InjectDataSource() private dataSource: DataSource) {}
   async insertUser(user: Partial<User>) {
     const queryRunner = this.dataSource.createQueryRunner(); //создаем экземпляр запроса
     //await queryRunner.connect();
@@ -90,167 +164,6 @@ export class UserRepositorySql {
     }
     return UserMapper.toDomain(result[0]);
   }
-
-  async save(user: User): Promise<void> {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.startTransaction();
-    console.log('User data in save method: ', user);
-    try {
-      const existingUser = await this.find(user.userId);
-      console.log('User object in save method: ', user);
-      console.log('User object from database: ', existingUser);
-      await this.updateEmailConfirmations(queryRunner, user, existingUser);
-      await this.updateUsers(queryRunner, user, existingUser);
-
-      await queryRunner.commitTransaction();
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw new NotFoundException('User save failed');
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  private async updateEmailConfirmations(
-    queryRunner: QueryRunner,
-    user: User,
-    existingUser: User,
-  ): Promise<void> {
-    const emailConfirmationFields = [
-      'isConfirmed',
-      'confirmationCode',
-      'confirmationCodeExpirationDate',
-      'isPasswordRecoveryConfirmed',
-      'passwordRecoveryCode',
-      'passwordRecoveryCodeExpirationDate',
-    ];
-    const fieldsToUpdate = this.getFieldsToUpdateForTable(
-      user.emailConfirmation,
-      existingUser.emailConfirmation,
-      emailConfirmationFields,
-    );
-    console.log('Fields to update for EmailConfirmations: ', fieldsToUpdate);
-    if (fieldsToUpdate.length > 0) {
-      const setClauses = fieldsToUpdate.map(
-        (field, index) => `"${field}" = $${index + 1}`,
-      );
-      const values = fieldsToUpdate.map(
-        (field) => user.emailConfirmation[field],
-      );
-      values.push(user.emailConfirmationId);
-
-      await queryRunner.query(
-        `UPDATE "EmailConfirmations"
-                SET ${setClauses.join(', ')}
-                WHERE "emailId" = $${fieldsToUpdate.length + 1}`,
-        values,
-      );
-    }
-  }
-
-  private async updateUsers(
-    queryRunner: QueryRunner,
-    user: User,
-    existingUser: User,
-  ): Promise<void> {
-    const userFields = ['login', 'email', 'passwordHash', 'createdAt'];
-    const fieldsToUpdate = this.getFieldsToUpdateForTable(
-      user,
-      existingUser,
-      userFields,
-    );
-    console.log('Fields to update for Users: ', fieldsToUpdate);
-    if (fieldsToUpdate.length > 0) {
-      const setClauses = fieldsToUpdate.map(
-        (field, index) => `"${field}" = $${index + 1}`,
-      );
-      const values = fieldsToUpdate.map((field) => user[field]);
-      values.push(user.userId);
-
-      await queryRunner.query(
-        `UPDATE "Users"
-                SET ${setClauses.join(', ')}
-                WHERE "userId" = $${fieldsToUpdate.length + 1}`,
-        values,
-      );
-    }
-  }
-
-  private getFieldsToUpdateForTable(
-    obj1: any,
-    obj2: any,
-    fields: string[],
-  ): string[] {
-    const fieldsToUpdate: string[] = [];
-    for (const key of fields) {
-      if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
-        if (obj1[key] instanceof Date && obj2[key] instanceof Date) {
-          if (obj1[key].getTime() !== obj2[key].getTime()) {
-            fieldsToUpdate.push(key);
-          }
-        } else if (obj1[key] !== obj2[key]) {
-          fieldsToUpdate.push(key);
-        }
-      }
-    }
-    return fieldsToUpdate;
-  }
-
-  /*async save(user: User): Promise<void> {
-    //console.log('User data in save method: ', user);
-    const queryRunner = this.dataSource.createQueryRunner();
-    //await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      await queryRunner.query(
-        `
-        UPDATE "EmailConfirmations"
-        SET "isConfirmed" = $1,
-            "confirmationCode" = $2,
-            "confirmationCodeExpirationDate" = $3,
-            "passwordRecoveryCode" = $4,
-            "passwordRecoveryCodeExpirationDate" = $5,
-            "isPasswordRecoveryConfirmed" = $6
-        WHERE "emailId" = $7
-      `,
-        [
-          user.emailConfirmation.isConfirmed,
-          user.emailConfirmation.confirmationCode,
-          user.emailConfirmation.confirmationCodeExpirationDate,
-          user.emailConfirmation.passwordRecoveryCode,
-          user.emailConfirmation.passwordRecoveryCodeExpirationDate,
-          user.emailConfirmation.isPasswordRecoveryConfirmed,
-          user.emailConfirmationId,
-        ],
-      );
-
-      await queryRunner.query(
-        `
-        UPDATE "Users"
-        SET login = $1,
-            email = $2,
-            "passwordHash" = $3,
-            "createdAt" = $4
-        WHERE "userId" = $5
-      `,
-        [
-          user.login,
-          user.email,
-          user.passwordHash,
-          user.createdAt,
-          user.userId,
-        ],
-      );
-
-      await queryRunner.commitTransaction();
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw new NotFoundException('User save failed');
-    } finally {
-      await queryRunner.release();
-    }
-  }*/
 
   async findUserByConfirmationCode(
     confirmationCode: string,
@@ -331,47 +244,5 @@ export class UserRepositorySql {
     } finally {
       await queryRunner.release();
     }
-  }
-  /*constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
-
-    async insertUser(user: Partial<User>) {
-      const result: UserDocument = await this.userModel.create(user);
-      return result.id;
-    }
-
-    async find(userId: string): Promise<UserDocument> {
-      return this.userModel.findById(userId).exec();
-    }
-
-    async findUserByConfirmationCode(
-      confirmationCode: string,
-    ): Promise<UserDocument> {
-      return await this.userModel
-        .findOne({ 'emailConfirmation.confirmationCode': confirmationCode })
-        .exec();
-    }
-    async findUserByRecoveryCode(recoveryCode: string): Promise<UserDocument> {
-      return await this.userModel
-        .findOne({ 'emailConfirmation.passwordRecoveryCode': recoveryCode })
-        .exec();
-    }
-    async findByLoginOrEmail(loginOrEmail: string): Promise<UserDocument> {
-      try {
-        return await this.userModel.findOne({
-          $or: [{ email: loginOrEmail }, { login: loginOrEmail }],
-        });
-      } catch (e) {
-        console.error('Error finding user by login or email:', e);
-        return null;
-      }
-    }
-
-    async deleteUserById(userId: string) {
-      try {
-        const result = await this.userModel.findOneAndDelete({ _id: userId });
-        return result.$isDeleted();
-      } catch (error) {
-        throw new Error(`Failed to delete blog with error ${error}`);
-      }
-    }*/
+  }*/
 }

@@ -1,15 +1,100 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 //import { Session, SessionDocument } from '../domain/security.entity';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { Session } from '../domain/security.sql.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Session } from '../domain/security.orm.entity';
 
 @Injectable()
 export class SecurityRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Session)
+    private readonly sessionRepo: Repository<Session>,
+  ) {}
   async createSession(session: Session): Promise<string> {
     console.log('Session object in security repo:', session);
-    //TODO userId разные в таблице users другое в session другой
+    // Сохраняем сессию и получаем сохраненный объект
+    const savedSession = await this.sessionRepo.save(session);
+    console.log('Session after insert to db: ', savedSession);
+    // Возвращаем идентификатор устройства
+    return savedSession.deviceId;
+  }
+
+  async findSession(
+    userId: string,
+    deviceId: string,
+    createdAt: number,
+  ): Promise<Session | null> {
+    const session = await this.sessionRepo.findOne({
+      where: {
+        user: { userId },
+        deviceId,
+        createdAt,
+      },
+      relations: ['user'], // Убедитесь, что связь с пользователем загружена
+    });
+    console.log('Session info in find method inside repository: ', session);
+    return session || null;
+  }
+  async findSessionByDeviceId(deviceId: string): Promise<Session | null> {
+    const session = await this.sessionRepo.findOne({
+      where: { deviceId },
+      relations: ['user'], // Убедитесь, что связь с пользователем загружена
+    });
+    console.log(
+      'Session info in findSessionByDeviceId inside repository: ',
+      session,
+    );
+    return session || null;
+  }
+  /**
+   * Создаем QueryBuilder для удаления сессий:
+   * Определяем действие удаления, в нашем случае delete().
+   * Указываем таблицу для удаления(Session).
+   * Устанавливаем условие для userId.
+   * Устанавливаем условие для исключения текущего @param  deviceId.
+   */
+  async terminateAllOtherSessions(
+    userId: string,
+    currentDeviceId: string,
+  ): Promise<number> {
+    try {
+      const result = await this.sessionRepo
+        .createQueryBuilder() // Создаем QueryBuilder
+        .delete() // Определяем действие удаления
+        .from(Session) // Указываем таблицу для удаления
+        .where('userId = :userId', { userId }) // Устанавливаем условие для userId
+        .andWhere('deviceId != :currentDeviceId', { currentDeviceId }) // Устанавливаем условие для исключения текущего deviceId
+        .execute();
+
+      return result.affected || 0;
+    } catch (error) {
+      console.error('Error deleting other sessions:', error);
+      throw new Error('Error deleting other sessions');
+    }
+  }
+  async terminateSessionById(deviceId: string): Promise<boolean> {
+    try {
+      // Удаляем сессию по идентификатору устройства
+      const result = await this.sessionRepo.delete({ deviceId });
+      // Проверяем, было ли удаление успешным
+      return result.affected > 0;
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      throw new Error('Error deleting session');
+    }
+  }
+  async save(session: Partial<Session>): Promise<void> {
+    try {
+      // Сохраняем изменения в базе данных
+      await this.sessionRepo.save(session);
+    } catch (error) {
+      console.error('Error saving session:', error);
+      throw new Error('Error saving session');
+    }
+  }
+  /*constructor(@InjectDataSource() private dataSource: DataSource) {}
+  async createSession(session: Session): Promise<string> {
+    console.log('Session object in security repo:', session);
     const result = await this.dataSource.query(
       `
       INSERT INTO "Sessions" (
@@ -45,11 +130,6 @@ export class SecurityRepository {
       FROM "Sessions"
       WHERE "userIdFk" = $1 AND "deviceId" = $2 AND "createdAt" = $3
     `;
-
-    /*if (createdAt !== undefined) {
-      query += ` AND "createdAt" = $3`;
-      params.push(createdAt.toString());
-    }*/
 
     const result = await this.dataSource.query(query, params);
     return result.length ? result[0] : null;
@@ -105,48 +185,6 @@ export class SecurityRepository {
     } catch (error) {
       console.error('Error saving session:', error);
       throw new InternalServerErrorException('Error saving session');
-    }
-  }
-  /*constructor(
-    @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
-  ) {}
-  async createSession(session: Session) {
-    const result: SessionDocument = await this.sessionModel.create(session);
-    return result.id;
-  }
-
-  async findSession(
-    userId: string,
-    deviceId: string,
-    createdAt?: number,
-  ): Promise<SessionDocument> {
-    //console.log({ userId, deviceId, createdAt });
-    return this.sessionModel.findOne({ userId, deviceId, createdAt }); //All done work well
-  }
-  async findSessionByDeviceId(deviceId: string): Promise<SessionDocument> {
-    return this.sessionModel.findOne({ deviceId });
-  }
-  async terminateAllOtherSessions(userId: string, currentDeviceId: string) {
-    try {
-      // Удаляем все сессии пользователя, кроме текущей
-      const result = await this.sessionModel.deleteMany({
-        userId,
-        deviceId: { $ne: currentDeviceId },
-      });
-      return result.deletedCount;
-    } catch (error) {
-      console.error('Error deleting other sessions:', error);
-      throw new InternalServerErrorException('Error deleting other sessions');
-    }
-  }
-
-  async terminateSessionById(deviceId: string) {
-    try {
-      const result = await this.sessionModel.deleteOne({ deviceId });
-      return result.deletedCount > 0;
-    } catch (error) {
-      console.error('Error deleting other sessions:', error);
-      throw new InternalServerErrorException('Error deleting other sessions');
     }
   }*/
 }

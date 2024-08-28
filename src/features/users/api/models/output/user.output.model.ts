@@ -1,5 +1,6 @@
-import { UserDocument } from '../../../domain/user.entity';
-import { EmailConfirmation, User } from '../../../domain/user.sql.entity';
+//import { EmailConfirmation, User } from '../../../domain/user.sql.entity';
+
+import { User } from '../../../domain/user.orm.entity';
 
 export class UserOutputDto {
   constructor(
@@ -35,7 +36,7 @@ export class UserMapper {
       createdAt: user.createdAt,
     };
   }
-  public static toDomain(userRow: any): User {
+  /*public static toDomain(userRow: any): User {
     //console.log('UserRow data: ', userRow);
     const emailConfirmation = new EmailConfirmation();
     emailConfirmation.initEmailConfirmationData(userRow);
@@ -49,8 +50,8 @@ export class UserMapper {
     user.createdAt = userRow.createdAt;
     user.emailConfirmationId = userRow.emailConfirmationId;
     user.emailConfirmation = emailConfirmation;
-    user.userId = userRow.userId; // Сохранение идентификатора пользователя в объекте User
+    user.userId = userRow.userId;
     //console.log('User as a object in toDomain method: ', user);
     return user;
-  }
+  }*/
 }
