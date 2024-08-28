@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CommentRepository } from '../infrastructure/comment.repository';
 import { LikeInputDto } from '../../../likes/api/models/likes.info.model';
 import { CommentCreateDto } from '../api/models/input/comment.input.model';
-import { CommentLikes } from '../../../likes/domain/like.sql.entity';
 import { Comment } from '../domain/comment.orm.entity';
+import { CommentLike } from '../../../likes/domain/commentLikes.orm.entity';
 
 @Injectable()
 export class CommentService {
@@ -34,7 +34,7 @@ export class CommentService {
     userId: string,
     payload: LikeInputDto,
   ) {
-    const dto = new CommentLikes({
+    const dto = CommentLike.createLikeForComment({
       authorId: userId,
       parentId: commentId,
       status: payload.likeStatus,

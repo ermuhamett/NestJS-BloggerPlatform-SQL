@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CommentLikes } from '../../../likes/domain/like.sql.entity';
 import { Comment } from '../domain/comment.orm.entity';
 import { CommentLike } from '../../../likes/domain/commentLikes.orm.entity';
 
@@ -41,7 +40,7 @@ export class CommentRepository {
     await this.commentRepository.save(comment);
   }
 
-  async updateLikeStatus(updatedLikeStatusDto: CommentLikes) {
+  async updateLikeStatus(updatedLikeStatusDto: CommentLike) {
     const { authorId, parentId, status, createdAt } = updatedLikeStatusDto;
     try {
       // Найти существующий лайк
